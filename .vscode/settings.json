@@ -47,6 +47,6 @@
     ],
     "prettier.tabWidth": 4,
     "prettier.trailingComma": "es5",
-    "prettier.useTabs": false,
+    "prettier.useTabs": true,
     "prettier.semi": false
 }
