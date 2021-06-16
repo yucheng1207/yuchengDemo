@@ -1,34 +1,30 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+这是一个[Next.js](https://nextjs.org/)项目，使用[`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app)创建。
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+// Starts the development server.
 npm run dev
-# or
-yarn dev
+
+// Builds the app for production.
+npm run build
+
+// Runs the built app in production mode.
+npm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
-
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.tsx`.
-
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+使用浏览器打开 http://localhost:3000 以查看结果。
+pages/api 目录映射到/api/\*. 此目录中的文件被视为 API 路由而不是 React 页面。
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
+要了解有关 Next.js 的更多信息，请查看以下资源：
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+-   [Next.js 文档](https://nextjs.org/docs) - 了解 Next.js 功能和 API。
+-   [学习 Next.js](https://nextjs.org/learn) - Next.js 教程。
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+部署 Next.js 应用程序的最简单方法是使用 Next.js 创建者提供的[Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+查看 [Next.js 部署文档](https://nextjs.org/docs/deployment) 以获取更多详细信息
