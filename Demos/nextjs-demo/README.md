@@ -4,6 +4,7 @@
 
 -   [默认支持的 Feature](https://nextjs.org/docs/basic-features/pages)
     -   (动态)路由
+    -   [国际化路由](https://nextjs.org/docs/advanced-features/i18n-routing)
     -   内置 CSS/Sass 支持
         -   可以在 JavaScript 文件导入 CSS 文件
         -   CSS-in-Js：捆绑了[styled-jsx](https://github.com/vercel/styled-jsx)以提供对隔离作用域 CSS 的支持（需要注意的是它 `不支持服务器渲染并且只支持 JS` ）
@@ -45,3 +46,13 @@ pages/api 目录映射到/api/\*. 此目录中的文件被视为 API 路由而�
 部署 Next.js 应用程序的最简单方法是使用 Next.js 创建者提供的[Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme).
 
 查看 [Next.js 部署文档](https://nextjs.org/docs/deployment) 以获取更多详细信息
+
+## Note
+
+### 路由配置
+
+1. pages 下的每个文件都与其文件名相同的路由关联，如`pages/abouts.js`对应的路由为`/about`
+2. `pages/_app.tsx`可以[自定义 App 组件](https://nextjs.org/docs/advanced-features/custom-app)来控制页面的初始化
+3. `pages/_document`可以[自定义 Document](https://nextjs.org/docs/advanced-features/custom-document)
+4. `pages/404.tsx`、`pages/500.tsx`和`pages/_error.tsx`可以[自定义 错误页面](https://nextjs.org/docs/advanced-features/custom-error-page)
+5. next.config.js 的`i18n`属性可配置国际化路由，搭配`react-intl`可实现国际化
