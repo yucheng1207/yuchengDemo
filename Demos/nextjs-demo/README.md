@@ -39,7 +39,7 @@ npm start
 ```
 
 使用浏览器打开 http://localhost:3000 以查看结果。
-pages/api 目录映射到/api/\*. 此目录中的文件被视为 API 路由而不是 React 页面。
+src/pages/api 目录映射到/api/\*. 此目录中的文件被视为 API 路由而不是 React 页面。
 
 ## Deploy on Vercel
 
@@ -51,8 +51,8 @@ pages/api 目录映射到/api/\*. 此目录中的文件被视为 API 路由而�
 
 ### 路由配置
 
-1. pages 下的每个文件都与其文件名相同的路由关联，如`pages/abouts.js`对应的路由为`/about`
-2. `pages/_app.tsx`可以[自定义 App 组件](https://nextjs.org/docs/advanced-features/custom-app)来控制页面的初始化
-3. `pages/_document`可以[自定义 Document](https://nextjs.org/docs/advanced-features/custom-document)
-4. `pages/404.tsx`、`pages/500.tsx`和`pages/_error.tsx`可以[自定义 错误页面](https://nextjs.org/docs/advanced-features/custom-error-page)
-5. next.config.js 的`i18n`属性可配置国际化路由，搭配`react-intl`可实现国际化
+-   NextJs 默认识别`pages`或者`src/pagaes`下的文件作为路由，如`src/pages/abouts.js`对应的路由为`/about`
+-   `pages/_app.tsx`可以[自定义 App 组件](https://nextjs.org/docs/advanced-features/custom-app)来控制页面的初始化
+-   `pages/_document`可以[自定义 Document](https://nextjs.org/docs/advanced-features/custom-document)
+-   `pages/404.tsx`、`pages/500.tsx`和`pages/_error.tsx`可以[自定义 错误页面](https://nextjs.org/docs/advanced-features/custom-error-page)
+-   next.config.js 的`i18n`属性可配置国际化路由，搭配`react-intl`可实现国际化
