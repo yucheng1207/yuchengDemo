@@ -24,6 +24,8 @@
 
 -   [Next.js 文档](https://nextjs.org/docs) - 了解 Next.js 功能和 API。
 -   [学习 Next.js](https://nextjs.org/learn) - Next.js 教程。
+-   [Examples](https://github.com/vercel/next.js/tree/master/examples) - Next.js 例子
+-   [Deploy](https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app) - Vercel 部署 NextJs
 
 ## Getting Started
 
@@ -55,4 +57,73 @@ src/pages/api 目录映射到/api/\*. 此目录中的文件被视为 API 路由�
 -   `pages/_app.tsx`可以[自定义 App 组件](https://nextjs.org/docs/advanced-features/custom-app)来控制页面的初始化
 -   `pages/_document`可以[自定义 Document](https://nextjs.org/docs/advanced-features/custom-document)
 -   `pages/404.tsx`、`pages/500.tsx`和`pages/_error.tsx`可以[自定义 错误页面](https://nextjs.org/docs/advanced-features/custom-error-page)
--   next.config.js 的`i18n`属性可配置国际化路由，搭配`react-intl`可实现国际化
+-   next.config.js 的`i18n`属性可[配置国际化路由](https://nextjs.org/docs/advanced-features/i18n-routing)，搭配`react-intl`可实现国际化
+
+### 国际化
+
+1. next.config.js 中[配置国际化路由](https://nextjs.org/docs/advanced-features/i18n-routing)
+
+```
+// next.config.js
+module.exports = {
+	i18n: {
+		locales: ['zh-CN', 'en-US'],
+		defaultLocale: 'zh-CN',
+	},
+}
+```
+
+2. 引入`react-intl`, 并使用`IntlProvider`注入 intl
+
+```
+// IntlContainer组件
+export const IntlContainer: React.FunctionComponent<{}> = (props) => {
+	const router = useRouter()
+	const locale = useMemo<ILocales>(() => {
+		return router.locale as ILocales
+	}, [router])
+
+	return <div style={{ width: '100%', height: '100%' }}>
+		<IntlProvider
+			locale={locale}
+			messages={getLocales(locale)}
+			onError={(err) => {
+				// react-intl itself doesn't inherently have any locale-data. Ignore Error
+				console.warn(err)
+			}}
+		>
+			{props.children}
+		</IntlProvider>
+	</div>
+}
+
+
+// _app.tsx
+function MyApp({ Component, pageProps }: AppProps) {
+	return <IntlContainer>
+		<Component {...pageProps} />
+	</IntlContainer>
+}
+export default MyApp
+
+```
+
+3. 在页面中使用
+
+```
+// 方法一：使用useIntl
+import { useIntl } from "react-intl";
+const intl = useIntl()
+intl.formatMessage({ id })
+
+// 方法二: 使用FormattedMessage组件
+import { FormattedMessage } from "react-intl";
+<FormattedMessage
+	id={id}
+/>
+```
+
+## Todos
+
+-   封装 Image 组件
+-   部署配置
