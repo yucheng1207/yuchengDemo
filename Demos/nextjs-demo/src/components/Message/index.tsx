@@ -1,12 +1,12 @@
 import { useRouter } from "next/router";
 import React, { useEffect, useMemo } from "react";
 import { IntlProvider, MessageFormatElement, useIntl } from "react-intl";
-import { getLocales, ILocales } from "src/intl";
+import { getLocales, Locales } from "src/intl";
 
 export const IntlContainer: React.FunctionComponent<{}> = (props) => {
 	const router = useRouter()
-	const locale = useMemo<ILocales>(() => {
-		return router.locale as ILocales
+	const locale = useMemo<Locales>(() => {
+		return router.locale as Locales
 	}, [router])
 
 	useEffect(() => {

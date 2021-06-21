@@ -1,4 +1,4 @@
-import './globals.css'
+import 'src/styles/globals.scss'
 import type { AppProps } from 'next/app'
 import { IntlContainer } from 'src/components/Message'
 

@@ -8,7 +8,7 @@
     -   内置 CSS/Sass 支持
         -   可以在 JavaScript 文件导入 CSS 文件
         -   CSS-in-Js：捆绑了[styled-jsx](https://github.com/vercel/styled-jsx)以提供对隔离作用域 CSS 的支持（需要注意的是它 `不支持服务器渲染并且只支持 JS` ）
-    -   图像优化
+    -   [图像优化](https://nextjs.org/docs/basic-features/image-optimization)
     -   字体优化
     -   [静态文件服务](https://nextjs.org/docs/basic-features/static-file-serving) （./public/ is mapped to /）
     -   [React 快速刷新](https://nextjs.org/blog/next-9-4#fast-refresh)
@@ -79,8 +79,8 @@ module.exports = {
 // IntlContainer组件
 export const IntlContainer: React.FunctionComponent<{}> = (props) => {
 	const router = useRouter()
-	const locale = useMemo<ILocales>(() => {
-		return router.locale as ILocales
+	const locale = useMemo<Locales>(() => {
+		return router.locale as Locales
 	}, [router])
 
 	return <div style={{ width: '100%', height: '100%' }}>
@@ -122,6 +122,65 @@ import { FormattedMessage } from "react-intl";
 	id={id}
 />
 ```
+
+### [Image 组件]](https://nextjs.org/docs/basic-features/image-optimization)
+
+-   源码: https://github.com/vercel/next.js/blob/canary/packages/next/client/image.tsx
+
+#### 使用 Next.js 图像组件`next/image`即可获得以下特性
+
+-   支持导入本地和远程图片
+    -   直接 import 一个`本地图片`时，width、height、 和 blurDataURL 会自动提供给图像组件；对于`动态或远程的图像`则必须提供 src、width、height 属性并且要手动设置 blurDataURL。
+    -   使用`远程url`时必须在`next.config.js`中设置`domains`或者`loader`,确保外部网址不会被滥用
+-   支持使用阿里云 Oss Url，设置`next/image`的 src、quality 和 width 属性可以自动获取带优化参数的 oss Url（也可以使用 image 的 loader 属性自定义 url 格式）， 当然使用时也需要在`next.config.js`中设置`domains
+-   支持懒加载（设置 loading 属性， 默认就是 lazy 模式）
+-   支持设置图片被完全加载前的展示效果（设置 placeholder 和 blurDataURL 属性）
+    -   预览图
+    -   微光图
+    -   纯色图
+-   支持设置不同的布局行为，`fixed`、`intrinsic`（默认）、`responsive`、`fill`。
+    -   fixed: 图像尺寸不会随着视口变化（无响应）而变化，类似于原生 img 元素。[fixed 演示](https://image-component.nextjs.gallery/layout-fixed)
+    -   intrinsic: 视口的尺寸不足时缩小图像，视口比图像尺寸大时保持原始尺寸。[intrinsic 演示](https://image-component.nextjs.gallery/layout-intrinsic)
+    -   responsive: 视口的尺寸不足时缩小图像，视口比图像尺寸大时放大图像。[responsive 演示](https://image-component.nextjs.gallery/layout-responsive)
+    -   fill: 图像将宽度和高度拉伸到父元素的尺寸, 可以搭配`objectFit`和`objectPosition`使用，比如当图片作为背景图时，可以设置`layout="fill" objectFit="cover"`。[fill 演示](https://image-component.nextjs.gallery/layout-fill)，[作为 background 演示](https://image-component.nextjs.gallery/background)
+-   [自动生成图片缓存](https://nextjs.org/docs/basic-features/image-optimization#caching)
+-   响应式图像，`next/image`会根据`Device Sizes`和`Image Sizes`设置图像的`srcSet`属性使得图片在不同的屏幕上都有较好的显示，达到响应式效果。这个概念比较复杂，请看下面的详细讲解。
+
+#### 响应式图像（Device Sizes & Image Sizes）
+
+-   TBD
+
+```
+  const widths = [
+    ...new Set(
+      // > This means that most OLED screens that say they are 3x resolution,
+      // > are actually 3x in the green color, but only 1.5x in the red and
+      // > blue colors. Showing a 3x resolution image in the app vs a 2x
+      // > resolution image will be visually the same, though the 3x image
+      // > takes significantly more data. Even true 3x resolution screens are
+      // > wasteful as the human eye cannot see that level of detail without
+      // > something like a magnifying glass.
+      // https://blog.twitter.com/engineering/en_us/topics/infrastructure/2019/capping-image-fidelity-on-ultra-high-resolution-devices.html
+      [width, width * 2 /*, width * 3*/].map(
+        (w) => allSizes.find((p) => p >= w) || allSizes[allSizes.length - 1]
+      )
+    ),
+  ]
+```
+
+###### 注意：
+
+-   <Image />组件上的其他属性将传递给底层 img 元素，但以下情况除外：
+    -   style. 使用 `className` 来代替。
+    -   srcSet. 使用 `Device Sizes` 来代替。
+    -   decoding. next/imgae 强制设置为`async`。
+
+#### 参考
+
+-   [图像优化](https://nextjs.org/docs/basic-features/image-optimization)
+-   [next/Image 组件所有属性](https://nextjs.org/docs/api-reference/next/image)
+-   [Understanding Next/Image](https://dev.to/yago/understanding-next-image-13ff)
+-   [Using Next.js Image Component to Improve Your Website’s Performance](https://blog.griddynamics.com/using-next-js-image-component-to-improve-your-websites-performance/)
 
 ## Todos
 
