@@ -17,6 +17,7 @@
         "suppressNoRepositoryWarning": false
     },
     "editor.formatOnSave": true,
+    // "prettier.disableLanguages": ["javascript", "js", "typescript", "ts"],
     "editor.defaultFormatter": "esbenp.prettier-vscode", // https://github.com/prettier/prettier-vscode#default-formatter
     "[typescript]": {
         "editor.defaultFormatter": "vscode.typescript-language-features"
