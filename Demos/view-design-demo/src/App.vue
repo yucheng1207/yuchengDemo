@@ -10,13 +10,15 @@
         <div class="modalContainer">
             <ModalTest />
         </div>
+        <RmoveTest />
     </div>
 </template>
 
 <script>
-import ModalNormal from './components/ModalNormal';
-import ModalAbnormal from './components/ModalAbnormal';
-import ModalTest from './components/ModalTest';
+import ModalNormal from './components/ModalTest/ModalNormal';
+import ModalAbnormal from './components/ModalTest/ModalAbnormal';
+import ModalTest from './components/ModalTest/ModalTest';
+import RmoveTest from './components/RemoveTest/RemoveTest';
 
 export default {
     name: 'App',
@@ -24,6 +26,7 @@ export default {
         ModalTest,
         ModalNormal,
         ModalAbnormal,
+        RmoveTest,
     },
 };
 </script>

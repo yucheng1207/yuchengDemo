@@ -15,7 +15,6 @@
                 v-if="displayModal"
                 v-model="modal1"
                 title="弹框测试"
-                :transfer="false"
                 @on-ok="ok"
                 @on-cancel="cancel"
             >
