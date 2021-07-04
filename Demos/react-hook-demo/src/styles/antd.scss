@@ -1,0 +1,229 @@
+@import "./colors";
+@import "./fonts";
+@import "./media";
+
+@mixin antd_select($height: auto) {
+	:global {
+		.ant-select {
+			.ant-select-selector {
+				height: $height;
+				padding: 0 16px;
+
+				.ant-select-selection-item, .ant-select-selection-placeholder {
+					@include flexContainer(row);
+				}
+			}
+		}
+
+		.ant-select:not(.ant-select-disabled):hover .ant-select-selector {
+			box-shadow: 0 0 0 2px rgba(94, 132, 254, 0.4);
+			border-color: $theme;
+		}
+		.ant-select-focused.ant-select-single:not(.ant-select-customize-input)
+			.ant-select-selector {
+			box-shadow: 0 0 0 2px rgba(94, 132, 254, 0.4);
+			border-color: $theme;
+		}
+		.ant-select-item {
+			padding: 10px 16px;
+			@include label(14px, $font-main, 1.43);
+		}
+		.ant-form-item-has-error .ant-select:not(.ant-select-disabled):not(.ant-select-customize-input).ant-select-open .ant-select-selector, .ant-form-item-has-error .ant-select:not(.ant-select-disabled):not(.ant-select-customize-input).ant-select-focused .ant-select-selector {
+			border-color: '#ff7875';
+			box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2);
+		}
+		.ant-form-item-has-error .ant-select:not(.ant-select-disabled):not(.ant-select-customize-input) .ant-select-selector {
+			border-color: '#ff7875';
+			box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2);
+		}
+		// Hover
+		.ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+			background-color: rgba(244, 244, 244, 0.8);
+		}
+
+		// Selected
+		.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+			@include label(14px, $font-main, 1.43, $bold);
+			background-color: rgba(94, 132, 254, 0.3);
+		}
+	}
+}
+
+@mixin antd_picker {
+	:global {
+		.ant-picker:hover,
+		.ant-picker-focused {
+			box-shadow: 0 0 0 2px rgba(94, 132, 254, 0.4);
+			border-color: $theme;
+		}
+
+		.ant-input-affix-wrapper:hover {
+			box-shadow: 0 0 0 2px rgba(94, 132, 254, 0.4);
+			border-color: $theme;
+		}
+
+		.ant-picker-range .ant-picker-active-bar {
+			background: $theme;
+		}
+	}
+}
+
+@mixin antd_card($width: 100%, $bg: $white) {
+	position: relative;
+	width: $width;
+	background-color: $bg;
+	border-radius: 4px;
+	margin-bottom: 16px;
+	box-sizing: content-box;
+
+	:global {
+		.ant-card-head {
+			@include label(18px, $font-main, 1.33, $bold);
+			border-bottom: solid 1px $divider;
+		}
+
+		.ant-card-body {
+			@include label(14px, $font-main);
+		}
+	}
+}
+
+@mixin antd_table_no_hover() {
+	:global {
+		tr:hover td {
+			background: transparent !important;
+		}
+	}
+}
+
+@mixin main_button($enable: true) {
+	background-color: #5e84fe;
+	border: solid 1px #4369e4;
+	border-radius: 4px;
+	box-shadow: none;
+	text-align: center;
+	@include flexContainer(row, center, center);
+	flex-shrink: 0;
+	height: 40px;
+	width: 128px;
+	@include label(16px, #ffffff, 1, $bold);
+
+	@if $enable == false {
+		opacity: 0.4;
+		cursor: default;
+		pointer-events: none;
+	} @else {
+		cursor: pointer;
+		&:hover,
+		&.focus {
+			color: #ffffff;
+			box-shadow: none;
+			border: solid 1px #1c378d;
+			background-color: #2f51bc;
+		}
+
+		&:active {
+			color: #ffffff;
+			box-shadow: none;
+			border: solid 1px #122769;
+			background-color: #18348c;
+		}
+	}
+}
+
+@mixin main_button_large($enable: true) {
+	@include main_button($enable);
+	height: 56px;
+	width: 327px;
+}
+
+@mixin secondary_button($enable: true) {
+	background-color: transparent;
+	border: solid 1px #d2d2d2;
+	border-radius: 4px;
+	box-shadow: none;
+	text-align: center;
+	@include flexContainer(row, center, center);
+	flex-shrink: 0;
+	height: 40px;
+	width: 128px;
+	@include label(16px, #898989, 1, $bold);
+
+	@if $enable == false {
+		opacity: 0.4;
+		cursor: default;
+		pointer-events: none;
+	} @else {
+		cursor: pointer;
+		&:hover,
+		&.focus {
+			color: #898989;
+			box-shadow: none;
+			border: solid 1px #c1c1c1;
+			background-color: #f4f5f4;
+		}
+
+		&:active {
+			color: #898989;
+			box-shadow: none;
+			border: solid 1px #a09e9e;
+			background-color: #d8d8d8;
+		}
+	}
+}
+
+@mixin secondary_button_large($enable: true) {
+	@include secondary_button($enable);
+	height: 56px;
+	width: 327px;
+}
+
+@mixin basic_button($enable: true) {
+	background-color: #ffffff;
+	border: solid 1px rgba(151, 151, 151, 0.4);
+	border-radius: 4px;
+	box-shadow: 0 0 2px 0 rgba(137, 137, 137, 0.4);
+	text-align: center;
+	@include flexContainer(row, center, center);
+	flex-shrink: 0;
+	padding: 2px 8px;
+	@include label(14px, #5e84fe);
+
+	@if $enable == false {
+		opacity: 0.4;
+		cursor: default;
+		pointer-events: none;
+	} @else {
+		cursor: pointer;
+		&:hover,
+		&.focus {
+			color: #5e84fe;
+			box-shadow: 0 0 2px 0 #898989;
+			border: solid 1px #5e84fe;
+			background-color: #ffffff;
+		}
+
+		&:active {
+			color: #ffffff;
+			box-shadow: 0 0 2px 0 rgba(137, 137, 137, 0.4);
+			border: solid 1px #ffffff;
+			background-color: #5e84fe;
+		}
+	}
+}
+
+@mixin openTableHeight {
+	:global {
+		.ant-table,
+		.ant-table-container,
+		.ant-table-content {
+			height: 100%;
+		}
+
+		.ant-table-empty {
+			table {
+				height: 100%;
+			}
+		}
+	}
+}
