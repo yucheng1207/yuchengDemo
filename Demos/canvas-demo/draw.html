@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<meta charset="utf-8" />
+<body>
+    <canvas class="canvas" id="myCanvas"></canvas>
+    <div class="tool">
+        <div class="left">
+            取点间隔：
+            <input class="input" type="number" id="intervalInput" value="20" />
+            <div class="buttons">
+                <input
+                    class="button"
+                    type="button"
+                    id="pointSide"
+                    value="边取点"
+                />
+                <input
+                    class="button"
+                    type="button"
+                    id="pointArea"
+                    value="区域取点"
+                />
+                <input
+                    class="button"
+                    type="button"
+                    id="cleanButton"
+                    value="清空画布"
+                />
+            </div>
+            <div class="tip">单击在画布取点， 双击自动闭合绘制成多边形</div>
+        </div>
+        <div class="right">
+            <input id="switchButton" type="checkbox" checked />
+            自动取点
+        </div>
+    </div>
+</body>
+
+<style>
+    * {
+        box-sizing: border-box;
+        user-select: none;
+    }
+    body {
+        margin: 0;
+        width: 100vw;
+        height: 100vh;
+    }
+    .tool {
+        position: absolute;
+        height: 45px;
+        top: 0;
+        padding: 10px 24px;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .canvas {
+        background-color: #f1f1f1;
+        cursor: crosshair;
+    }
+    .buttons {
+        margin: 0 10px;
+    }
+    .button {
+        margin: 0 5px;
+        cursor: pointer;
+    }
+    .input {
+        width: 60px;
+    }
+    .left {
+        display: flex;
+        align-items: center;
+    }
+    .right {
+        display: flex;
+        align-items: center;
+    }
+    .tip {
+        font-size: 14px;
+    }
+</style>
+
+<script>
+    const canvas = document.getElementById('myCanvas');
+    const pointSide = document.getElementById('pointSide');
+    const pointArea = document.getElementById('pointArea');
+    const intervalInput = document.getElementById('intervalInput');
+    const switchButton = document.getElementById('switchButton');
+    const cleanButton = document.getElementById('cleanButton');
+
+    // 设置画布宽高为整个屏幕
+    const pageWidth = document.documentElement.clientWidth;
+    const pageHeight = document.documentElement.clientHeight;
+    canvas.width = pageWidth;
+    canvas.height = pageHeight;
+
+    // 默认取点间隔为20
+    let interval = 20;
+
+    // 颜色设置
+    const lineColor = 'black'; // 线的颜色
+    const gridColor = '#dcdcdc'; // 栅格颜色
+    const pointColor = 'black'; // 多边形顶点的颜色
+    const sidePointColor = 'red'; // 边间隔取点时点的颜色
+    const polygonPointColor = 'blue'; // 区域间隔取点时点的颜色
+    const polygonColor = '#e2b2b24d'; // 多边形填充颜色
+    const gridLineWidth = 1; // 栅格线宽
+    const lineWidth = 2; // 默认线宽
+    const pointRadius = 1; // 默认点半径
+
+    let painting = false; // 是否正在绘制多边形
+    let points = []; // 多边形顶点
+    let timer = null; // timer，用于处理单双击事件
+    let autoPoint = true; // 是否自动取点
+
+    /**
+     *
+     */
+    cleanButton.onclick = function (e) {
+        points = [];
+        clean();
+    };
+
+    /**
+     * 是否自动取点
+     */
+    switchButton.onchange = function (e) {
+        autoPoint = e.target.checked;
+        draw(true);
+    };
+
+    /**
+     * 改变取点间隔
+     */
+    intervalInput.oninput = function (e) {
+        interval = Number(e.target.value);
+        draw(true);
+    };
+
+    canvas.ondblclick = function (e) {
+        clearTimeout(timer); // 清除第二个单击事件
+        console.log('双击', points);
+        painting = false;
+        draw(true);
+    };
+    //鼠标按下事件
+    canvas.onclick = function (e) {
+        clearTimeout(timer); // 清除第一个单击事件
+        if (!painting && points.length) {
+            if (confirm('需要重新绘制多边形吗？')) {
+                // 画第一个点前先清空points和画布
+                points = [];
+                clean();
+                return;
+            } else {
+                return;
+            }
+        }
+        timer = setTimeout(function () {
+            painting = true;
+            let x = e.clientX;
+            let y = e.clientY;
+            console.log('单击', { x, y });
+            if (!points.find((item) => item.x === x && item.y === y)) {
+                points.push({ x, y });
+                draw(false);
+            }
+        }, 250);
+    };
+
+    pointSide.onclick = function () {
+        pointPolygonSide();
+    };
+
+    pointArea.onclick = function () {
+        pointPolygonInternal();
+    };
+
+    /**
+     * 获取外接矩形
+     */
+    function getCircumscribedRectangle() {
+        const xSort = points.map((item) => item.x).sort((a, b) => a - b);
+        const ySort = points.map((item) => item.y).sort((a, b) => a - b);
+        const top = ySort[0];
+        const right = xSort[xSort.length - 1];
+        const bottom = ySort[ySort.length - 1];
+        const left = xSort[0];
+        const topLeft = { x: left, y: top };
+        const topRight = { x: right, y: top };
+        const bottomRight = { x: right, y: bottom };
+        const bottomLeft = { x: left, y: bottom };
+        return {
+            top,
+            right,
+            bottom,
+            left,
+            topLeft,
+            topRight,
+            bottomRight,
+            bottomLeft,
+        };
+    }
+    /**
+     * 获取ctx
+     */
+    function getCtx() {
+        return canvas.getContext('2d');
+    }
+    /**
+     * 绘制结果
+     */
+    function draw(isPolygon, showGrid = true) {
+        const ctx = getCtx();
+        clean();
+        if (!points.length) return;
+        // 绘制多边形顶点
+        points.forEach((item) => {
+            drawPoint(item.x, item.y, 2);
+        });
+        if (showGrid) {
+            drawGrid();
+        }
+        if (isPolygon) {
+            drawPolygon(points);
+        } else {
+            drawLine(points, 2);
+        }
+
+        // 自动取点
+        if (autoPoint) {
+            points.length >= 2 && pointPolygonSide();
+            points.length >= 3 && !painting && pointPolygonInternal();
+        }
+    }
+    /**
+     * 多边形内部均匀取点
+     */
+    function pointPolygonInternal() {
+        try {
+            const { top, right, bottom, left } = getCircumscribedRectangle(); // 取外接矩形
+            console.log('外接矩形', {
+                top,
+                right,
+                bottom,
+                left,
+            });
+            const rows = {}; // 用于存储多边形每条边跟间隔线的交点
+            const rowKeys = [];
+            // 按照`打点间隔`将多边形分成多行，以对象的形式存储在rows中（rows中的属性名为该行的Y坐标）
+            for (let i = top; i <= bottom; i = i + interval) {
+                rows[`${i}`] = [];
+                rowKeys.push(i);
+            }
+            points.forEach((item, index) => {
+                if (index >= points.length - 1) {
+                    return; // 最后一个点
+                }
+                const point1 = item;
+                const point2 = points[index + 1];
+                const k = (point1.y - point2.y) / (point1.x - point2.x);
+                const b = point1.y - k * point1.x;
+                const keys = rowKeys.filter(
+                    (item) =>
+                        (item >= point1.y && item <= point2.y) ||
+                        (item >= point2.y && item <= point1.y)
+                ); // 获取线段所在的行
+                keys.forEach((key) => {
+                    if (rows[`${key}`]) {
+                        rows[`${key}`].push({ x: (key - b) / k, y: key });
+                    } else {
+                        console.error(
+                            '线段所在行解析失败',
+                            rowKeys,
+                            key,
+                            rows,
+                            rows[`${key}`]
+                        );
+                    }
+                });
+            });
+            const pointsSave = [];
+            console.log('rows', rows);
+            Object.values(rows).forEach((_item) => {
+                let item = _item.sort((a, b) => a.x - b.x);
+                item = Array.from(new Set(item));
+                for (let i = 0; i <= item.length - 1; i = i + 2) {
+                    const startPoint = item[i];
+                    const endPoint = item[i + 1];
+                    const startX =
+                        startPoint.x +
+                        (interval - ((startPoint.x - left) % interval)); // 以外接矩形左上角作为起点
+                    // const startX =
+                    //     Math.ceil(startPoint.x / interval) * interval; // 以(0,0)作为起点
+                    for (let j = startX; j <= endPoint.x; j = j + interval) {
+                        pointsSave.push();
+                        drawPoint(j, startPoint.y, 1, polygonPointColor);
+                    }
+                }
+            });
+            console.log('多边形内部取点结果', rows, pointsSave);
+        } catch (error) {
+            console.error('多边形内部取点失败', rows);
+        }
+    }
+    /**
+     * 给多边形的边取点
+     */
+    function pointPolygonSide() {
+        points.forEach((p, index) => {
+            if (index < points.length - 1) {
+                pointLineSegment([p, points[index + 1]]);
+            }
+        });
+    }
+    /**
+     * 给线段取点
+     */
+    function pointLineSegment(lineSegment) {
+        try {
+            if (interval && lineSegment && lineSegment.length === 2) {
+                const point1 = lineSegment[0];
+                const point2 = lineSegment[1];
+                const a = point2.y - point1.y;
+                const b = point2.x - point1.x;
+                const c = Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
+                const n = Math.floor(c / interval);
+                const p = [];
+                for (let i = 1; i <= n; i++) {
+                    const x = (b / c) * (interval * i) + point1.x;
+                    const y = (a / c) * (interval * i) + point1.y;
+                    p.push({ x, y });
+                    drawPoint(x, y, 2, sidePointColor);
+                }
+                return p;
+            } else {
+                console.error('线段取点失败', lineSegment, interval);
+            }
+        } catch (error) {
+            console.error('线段取点失败', error);
+        }
+    }
+    /**
+     * 绘制栅格
+     */
+    function drawGrid() {
+        try {
+            const { top, right, bottom, left } = getCircumscribedRectangle();
+            const color = gridColor;
+
+            // // 画外接矩形 - Circumscribed rectangle
+            // const topLeft = { x: left, y: top };
+            // const topRight = { x: right, y: top };
+            // const bottomRight = { x: right, y: bottom };
+            // const bottomLeft = { x: left, y: bottom };
+            // drawLine(
+            //     [topLeft, topRight, bottomRight, bottomLeft, topLeft],
+            //     1,
+            //     color
+            // );
+            // 画竖线
+            for (let i = left; i <= right; i = i + interval) {
+                drawLine(
+                    [
+                        { x: i, y: top },
+                        { x: i, y: bottom },
+                    ],
+                    gridLineWidth,
+                    color
+                );
+            }
+            // 画横线
+            for (let i = top; i <= bottom; i = i + interval) {
+                drawLine(
+                    [
+                        { x: left, y: i },
+                        { x: right, y: i },
+                    ],
+                    gridLineWidth,
+                    color
+                );
+            }
+        } catch (error) {
+            console.error('栅格绘制失败', error);
+        }
+    }
+
+    /**
+     * 绘制点
+     */
+    function drawPoint(x, y, radius, color) {
+        const ctx = getCtx();
+        //绘制点
+        ctx.beginPath(); //开始绘制
+        ctx.strokeStyle = color || pointColor;
+        ctx.arc(x, y, radius || pointRadius, 0, Math.PI * 2, true);
+        ctx.fill();
+        ctx.stroke(); //进行绘制
+    }
+    /**
+     * 绘制线段
+     */
+    function drawLine(lines, width, color) {
+        const ctx = getCtx();
+        ctx.beginPath(); //开始绘制
+        ctx.lineWidth = width || lineWidth;
+        ctx.strokeStyle = color || lineColor;
+        lines.forEach((item) => {
+            ctx.lineTo(item.x, item.y); //终点,或者理解为下一个点
+        });
+        ctx.stroke(); //进行绘制
+    }
+    /**
+     * 绘制多边形
+     */
+    function drawPolygon(lines, isfill = true) {
+        if (lines.length > 2) {
+            lines.push(lines[0]);
+            const ctx = getCtx();
+            ctx.beginPath(); //开始绘制
+            ctx.lineWidth = lineWidth;
+            ctx.strokeStyle = lineColor;
+            lines.forEach((item) => {
+                ctx.lineTo(item.x, item.y); //终点,或者理解为下一个点
+            });
+            if (isfill) {
+                ctx.fillStyle = polygonColor;
+                ctx.fill();
+            }
+            ctx.stroke(); //进行绘制
+        } else {
+            console.error('绘制多边形失败', lines);
+        }
+    }
+    /**
+     * 清空画布
+     */
+    function clean() {
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+</script>
