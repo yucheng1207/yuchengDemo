@@ -27,11 +27,21 @@
                 />
             </div>
             <div class="tip">单击在画布取点， 双击自动闭合绘制成多边形</div>
+            <div id="coordinateText" class="coordinate"></div>
         </div>
         <div class="right">
-            <input id="switchButton" type="checkbox" checked />
+            <input
+                id="switchButton"
+                class="switchButton"
+                type="checkbox"
+                checked
+            />
             自动取点
         </div>
+    </div>
+    <div class="datumTypeButton">
+        <input id="datumTypeButton" type="checkbox" checked />
+        以外接矩形作为栅格起点进行取点
     </div>
 </body>
 
@@ -80,6 +90,17 @@
     .tip {
         font-size: 14px;
     }
+    .coordinate {
+        font-size: 14px;
+    }
+    .switchButton {
+        margin-left: 8px;
+    }
+    .datumTypeButton {
+        position: absolute;
+        top: 45px;
+        left: 20px;
+    }
 </style>
 
 <script>
@@ -89,6 +110,8 @@
     const intervalInput = document.getElementById('intervalInput');
     const switchButton = document.getElementById('switchButton');
     const cleanButton = document.getElementById('cleanButton');
+    const coordinateText = document.getElementById('coordinateText');
+    const datumTypeButton = document.getElementById('datumTypeButton');
 
     // 设置画布宽高为整个屏幕
     const pageWidth = document.documentElement.clientWidth;
@@ -115,8 +138,50 @@
     let timer = null; // timer，用于处理单双击事件
     let autoPoint = true; // 是否自动取点
 
+    // 栅格坐标基准类型: 'polygon' | 'default'
+    // polygon: 多边形外接矩形的左上角为坐标为栅格基准点；default：(0，0)为栅格基准点
+    // 这个值会影响最终取点位置
+    let gridCoordinateDatumType = 'polygon';
+
+    test();
+
     /**
-     *
+     * 绘制一个测试多边形
+     */
+    function test() {
+        points = [
+            { x: 300, y: 455 },
+            { x: 300, y: 353 },
+            { x: 365, y: 275 },
+            { x: 405, y: 410 },
+            { x: 480, y: 395 },
+            { x: 565, y: 395 },
+            { x: 633, y: 395 },
+            { x: 684, y: 295 },
+            { x: 586, y: 295 },
+            { x: 560, y: 355 },
+            { x: 520, y: 260 },
+            { x: 592, y: 195 },
+            { x: 790, y: 315 },
+            { x: 700, y: 488 },
+            { x: 800, y: 495 },
+            { x: 700, y: 588 },
+            { x: 610, y: 613 },
+            { x: 529, y: 610 },
+            { x: 504, y: 541 },
+            { x: 410, y: 606 },
+            { x: 341, y: 415 },
+        ];
+        draw(true, true);
+    }
+
+    datumTypeButton.onclick = function (e) {
+        gridCoordinateDatumType = e.target.checked ? 'polygon' : 'default';
+        draw(true);
+    };
+
+    /**
+     * 清空画布
      */
     cleanButton.onclick = function (e) {
         points = [];
@@ -139,13 +204,19 @@
         draw(true);
     };
 
+    /**
+     * 双击画布闭合线段，绘制多边形
+     */
     canvas.ondblclick = function (e) {
         clearTimeout(timer); // 清除第二个单击事件
         console.log('双击', points);
         painting = false;
         draw(true);
     };
-    //鼠标按下事件
+
+    /**
+     * 点击画布开始绘制多边形
+     */
     canvas.onclick = function (e) {
         clearTimeout(timer); // 清除第一个单击事件
         if (!painting && points.length) {
@@ -168,6 +239,15 @@
                 draw(false);
             }
         }, 250);
+    };
+
+    /**
+     * 移动鼠标获取鼠标坐标值
+     */
+    canvas.onmousemove = function (e) {
+        const x = e.clientX;
+        const y = e.clientY;
+        coordinateText.innerText = `（${x}，${y}）`;
     };
 
     pointSide.onclick = function () {
@@ -210,6 +290,45 @@
         return canvas.getContext('2d');
     }
     /**
+     * 获取离`currentVaule`最接近的间隔值（以initialValue为起点，interval为间隔得到一组值，得到这组值中离currentVaule最近的值）
+     * @param currentVaule - 当前值
+     * @param initialValue - 开始值， gridCoordinateDatumType为‘default’时，栅格起点为(0，0),所以initialValue会被强制设置为0
+     * @param vauleInterval - 间隔
+     * @param mathIntegerType - 取整类型，floor：向下取整；ceil：向上取整
+     * @returns
+     */
+    function getNearestVaule(
+        currentVaule,
+        initialValue,
+        vauleInterval,
+        mathIntegerType
+    ) {
+        if (gridCoordinateDatumType === 'default') {
+            // gridCoordinateDatumType为‘default’时，栅格起点为(0，0),所以initialValue会被强制设置为0
+            initialValue = 0;
+        }
+        if (mathIntegerType === 'ceil') {
+            // 向上取整
+            return (
+                initialValue +
+                Math.ceil((currentVaule - initialValue) / vauleInterval) *
+                    vauleInterval
+            );
+        } else if (mathIntegerType === 'floor') {
+            // 向下取整
+            return (
+                initialValue +
+                Math.floor((currentVaule - initialValue) / vauleInterval) *
+                    vauleInterval
+            );
+        } else {
+            console.error(
+                '取整类型设置错误, 只能是“ceil”或“floor”',
+                integerType
+            );
+        }
+    }
+    /**
      * 绘制结果
      */
     function draw(isPolygon, showGrid = true) {
@@ -224,6 +343,10 @@
             drawGrid();
         }
         if (isPolygon) {
+            // 形成闭合的多边形
+            if (points.length > 2 && points[0] !== points[points.length - 1]) {
+                points.push(points[0]);
+            }
             drawPolygon(points);
         } else {
             drawLine(points, 2);
@@ -247,62 +370,147 @@
                 bottom,
                 left,
             });
-            const rows = {}; // 用于存储多边形每条边跟间隔线的交点
-            const rowKeys = [];
-            // 按照`打点间隔`将多边形分成多行，以对象的形式存储在rows中（rows中的属性名为该行的Y坐标）
-            for (let i = top; i <= bottom; i = i + interval) {
-                rows[`${i}`] = [];
-                rowKeys.push(i);
-            }
+            const rows = {}; // 用于存储多边形每条边跟横向栅格线的交点
+
+            console.log('points', points);
             points.forEach((item, index) => {
                 if (index >= points.length - 1) {
                     return; // 最后一个点
                 }
+                // 获取边的两个顶点
                 const point1 = item;
                 const point2 = points[index + 1];
-                const k = (point1.y - point2.y) / (point1.x - point2.x);
+
+                // 计算这条边对应的一次方程k和b
+                const isVerticalLine = point1.x === point2.x; // 垂直线，竖线，无法得出一次方程
+                const k = !isVerticalLine
+                    ? (point1.y - point2.y) / (point1.x - point2.x)
+                    : 0;
                 const b = point1.y - k * point1.x;
-                const keys = rowKeys.filter(
-                    (item) =>
-                        (item >= point1.y && item <= point2.y) ||
-                        (item >= point2.y && item <= point1.y)
-                ); // 获取线段所在的行
-                keys.forEach((key) => {
-                    if (rows[`${key}`]) {
-                        rows[`${key}`].push({ x: (key - b) / k, y: key });
-                    } else {
-                        console.error(
-                            '线段所在行解析失败',
-                            rowKeys,
-                            key,
-                            rows,
-                            rows[`${key}`]
-                        );
+
+                if (gridCoordinateDatumType === 'default') {
+                    initialValue = 0;
+                }
+                const minY = Math.min(point1.y, point2.y);
+                const maxY = Math.max(point1.y, point2.y);
+                if (minY === maxY) {
+                    // 水平的边，不需要打点
+                    return;
+                }
+                // 获取与线段有交点的横向栅格线范围
+                const minGridY = getNearestVaule(minY, top, interval, 'ceil');
+                const maxGridY = getNearestVaule(maxY, top, interval, 'floor');
+
+                for (
+                    let key = minGridY;
+                    key <= maxGridY;
+                    key = key + interval
+                ) {
+                    const isPoint1 = key === point1.y; // point1在横栅格线上
+                    const isPoint2 = key === point2.y; // point2在横栅格线上
+                    const linearEquation = !isVerticalLine
+                        ? (key - b) / k
+                        : point1.x; // 求x的一次方程，  当线段为时无法得出一次方程，直接取point1.x
+                    const p = {
+                        x: isPoint1
+                            ? point1.x
+                            : isPoint2
+                            ? point2.x
+                            : linearEquation, // 当p点是顶点时直接使用一次方程公式算出来的x可能会跟顶点的x有很小的误差(比如顶点x为512， 算出来可能是519.99999999)，所以这里当p点是顶点时直接去顶点的x值
+                        y: key,
+                        index,
+                    };
+
+                    let isTangent = false;
+                    console.log(key, point1, point2);
+                    if (isPoint1) {
+                        // point1在横栅格线上
+                        const isFirstVertex = index === 0;
+                        const previousVertex = isFirstVertex
+                            ? points[points.length - 2]
+                            : points[index - 1];
+                        const nextVertex = point2;
+                        isTangent =
+                            Math.sign(previousVertex.y - key) ===
+                            Math.sign(nextVertex.y - key); // 前后两个点在同一侧，说明该顶点与横向栅格线相切
+                        console.log('isTangent1', isTangent, p);
                     }
-                });
-            });
-            const pointsSave = [];
-            console.log('rows', rows);
-            Object.values(rows).forEach((_item) => {
-                let item = _item.sort((a, b) => a.x - b.x);
-                item = Array.from(new Set(item));
-                for (let i = 0; i <= item.length - 1; i = i + 2) {
-                    const startPoint = item[i];
-                    const endPoint = item[i + 1];
-                    const startX =
-                        startPoint.x +
-                        (interval - ((startPoint.x - left) % interval)); // 以外接矩形左上角作为起点
-                    // const startX =
-                    //     Math.ceil(startPoint.x / interval) * interval; // 以(0,0)作为起点
-                    for (let j = startX; j <= endPoint.x; j = j + interval) {
-                        pointsSave.push();
-                        drawPoint(j, startPoint.y, 1, polygonPointColor);
+                    if (isPoint2) {
+                        // point2在横栅格线上
+                        const isLastVertex = index + 1 === points.length - 1;
+                        const previousVertex = point1;
+                        const nextVertex = isLastVertex
+                            ? points[1]
+                            : points[index + 2];
+                        isTangent =
+                            Math.sign(previousVertex.y - key) ===
+                            Math.sign(nextVertex.y - key); // 前后两个点在同一侧，说明该顶点与横向栅格线相切
+                        console.log('isTangent2', isTangent, p);
+                    }
+
+                    // 将多边形每条边跟横向栅格线的交点存储到rows对象中，rows对象的每个key值为该行栅格线的Y值
+                    if (!rows[`${key}`]) {
+                        rows[`${key}`] = !isTangent ? [p] : [];
+                    } else {
+                        const currentRow = rows[`${key}`];
+                        const rowFirstPoint = currentRow[0]; // 该行第一个点
+                        const rowLastPoint = currentRow[currentRow.length - 1]; // 该行最后一个点
+                        const hasSamePoint =
+                            rowFirstPoint &&
+                            rowLastPoint &&
+                            (p.x === rowFirstPoint.x || p.x === rowLastPoint.x); // 去重，新加的点不等于该行的上一个点和该行的第一个点
+
+                        if (!hasSamePoint && !isTangent) {
+                            currentRow.push(p);
+                        }
                     }
                 }
             });
-            console.log('多边形内部取点结果', rows, pointsSave);
+            console.log('每条边与横向栅格线的交点：', rows);
+            const pointsSave = [];
+            Object.values(rows).forEach((_item) => {
+                const rowPoints = _item.sort((a, b) => a.x - b.x); // 排序
+                if (rowPoints.length % 2) {
+                    // rowPoints不是偶数，取点出现问题
+                    const error = {
+                        message: `rows的 ${rowPoints[0].y}行 排序并去重后不是偶数，取点出现问题`,
+                        row: rowPoints,
+                        rows,
+                    };
+                    throw error; // 直接报错，不继续绘制剩余的点
+                    // console.error(error.message, error);
+                    // return; // 继续绘制剩余的点
+                }
+                // 在两个交点之间均匀取点
+                for (let i = 0; i <= rowPoints.length - 1; i = i + 2) {
+                    const startPoint = rowPoints[i];
+                    const endPoint = rowPoints[i + 1];
+                    const pointY = startPoint.y;
+                    const startX = getNearestVaule(
+                        startPoint.x,
+                        left,
+                        interval,
+                        'ceil'
+                    );
+                    for (
+                        let pointX = startX;
+                        pointX <= endPoint.x;
+                        pointX = pointX + interval
+                    ) {
+                        pointsSave.push({ x: pointX, y: pointY });
+                        drawPoint(
+                            pointX,
+                            pointY,
+                            pointRadius,
+                            polygonPointColor
+                        );
+                    }
+                }
+            });
+            console.log('每条边与横向栅格线的交点(处理后)：', rows);
+            console.log('多边形内部取点结果：', pointsSave);
         } catch (error) {
-            console.error('多边形内部取点失败', rows);
+            console.error('多边形内部取点失败', error);
         }
     }
     /**
@@ -348,7 +556,6 @@
     function drawGrid() {
         try {
             const { top, right, bottom, left } = getCircumscribedRectangle();
-            const color = gridColor;
 
             // // 画外接矩形 - Circumscribed rectangle
             // const topLeft = { x: left, y: top };
@@ -357,29 +564,34 @@
             // const bottomLeft = { x: left, y: bottom };
             // drawLine(
             //     [topLeft, topRight, bottomRight, bottomLeft, topLeft],
-            //     1,
-            //     color
+            //     gridLineWidth,
+            //     gridColor
             // );
+            const isDefaultDatum = gridCoordinateDatumType === 'default';
+            const gridLeft = isDefaultDatum ? 0 : left; // Math.floor(left / interval) * interval;
+            const gridRight = isDefaultDatum ? pageWidth : right; // Math.ceil(right / interval) * interval;
+            const gridTop = isDefaultDatum ? 0 : top; // Math.floor(top / interval) * interval;
+            const gridBottom = isDefaultDatum ? pageHeight : bottom; // Math.ceil(bottom / interval) * interval;
             // 画竖线
-            for (let i = left; i <= right; i = i + interval) {
+            for (let i = gridLeft; i <= gridRight; i = i + interval) {
                 drawLine(
                     [
-                        { x: i, y: top },
-                        { x: i, y: bottom },
+                        { x: i, y: gridTop },
+                        { x: i, y: gridBottom },
                     ],
                     gridLineWidth,
-                    color
+                    gridColor
                 );
             }
             // 画横线
-            for (let i = top; i <= bottom; i = i + interval) {
+            for (let i = gridTop; i <= gridBottom; i = i + interval) {
                 drawLine(
                     [
-                        { x: left, y: i },
-                        { x: right, y: i },
+                        { x: gridLeft, y: i },
+                        { x: gridRight, y: i },
                     ],
                     gridLineWidth,
-                    color
+                    gridColor
                 );
             }
         } catch (error) {
@@ -417,7 +629,6 @@
      */
     function drawPolygon(lines, isfill = true) {
         if (lines.length > 2) {
-            lines.push(lines[0]);
             const ctx = getCtx();
             ctx.beginPath(); //开始绘制
             ctx.lineWidth = lineWidth;
@@ -441,5 +652,8 @@
         const canvas = document.getElementById('myCanvas');
         const ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (gridCoordinateDatumType === 'default') {
+            drawGrid();
+        }
     }
 </script>
