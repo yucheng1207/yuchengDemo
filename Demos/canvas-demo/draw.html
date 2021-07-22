@@ -4,8 +4,16 @@
     <canvas class="canvas" id="myCanvas"></canvas>
     <div class="tool">
         <div class="left">
-            取点间隔：
-            <input class="input" type="number" id="intervalInput" value="20" />
+            <div class="interval">
+                取点间隔：
+                <input
+                    class="input"
+                    type="number"
+                    id="intervalInput"
+                    value="20"
+                />
+            </div>
+
             <div class="buttons">
                 <input
                     class="button"
@@ -37,11 +45,15 @@
                 checked
             />
             自动取点
+            <input
+                id="datumTypeButton"
+                class="datumTypeButton"
+                type="checkbox"
+                checked
+                style="margin-left: 10px"
+            />
+            以外接矩形作为栅格起点进行取点
         </div>
-    </div>
-    <div class="datumTypeButton">
-        <input id="datumTypeButton" type="checkbox" checked />
-        以外接矩形作为栅格起点进行取点
     </div>
 </body>
 
@@ -52,28 +64,32 @@
     }
     body {
         margin: 0;
+        min-width: 950px;
         width: 100vw;
         height: 100vh;
     }
     .tool {
         position: absolute;
-        height: 45px;
         top: 0;
         padding: 10px 24px;
         width: 100%;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        flex-wrap: wrap;
+    }
+    .interval {
+        margin-right: 20px;
     }
     .canvas {
         background-color: #f1f1f1;
         cursor: crosshair;
     }
     .buttons {
-        margin: 0 10px;
+        margin-right: 10px;
     }
     .button {
-        margin: 0 5px;
+        margin-right: 10px;
         cursor: pointer;
     }
     .input {
@@ -82,10 +98,12 @@
     .left {
         display: flex;
         align-items: center;
+        flex-wrap: wrap;
     }
     .right {
         display: flex;
         align-items: center;
+        flex-wrap: wrap;
     }
     .tip {
         font-size: 14px;
@@ -94,12 +112,10 @@
         font-size: 14px;
     }
     .switchButton {
-        margin-left: 8px;
+        margin-right: 8px;
     }
     .datumTypeButton {
-        position: absolute;
-        top: 45px;
-        left: 20px;
+        /* margin-left: 8px; */
     }
 </style>
 
@@ -143,35 +159,86 @@
     // 这个值会影响最终取点位置
     let gridCoordinateDatumType = 'polygon';
 
-    test();
+    window.addEventListener('resize', () => {
+        draw(true, true);
+    });
+
+    test('Heart-shaped');
 
     /**
      * 绘制一个测试多边形
      */
-    function test() {
-        points = [
-            { x: 300, y: 455 },
-            { x: 300, y: 353 },
-            { x: 365, y: 275 },
-            { x: 405, y: 410 },
-            { x: 480, y: 395 },
-            { x: 565, y: 395 },
-            { x: 633, y: 395 },
-            { x: 684, y: 295 },
-            { x: 586, y: 295 },
-            { x: 560, y: 355 },
-            { x: 520, y: 260 },
-            { x: 592, y: 195 },
-            { x: 790, y: 315 },
-            { x: 700, y: 488 },
-            { x: 800, y: 495 },
-            { x: 700, y: 588 },
-            { x: 610, y: 613 },
-            { x: 529, y: 610 },
-            { x: 504, y: 541 },
-            { x: 410, y: 606 },
-            { x: 341, y: 415 },
-        ];
+    function test(polygonName) {
+        switch (polygonName) {
+            case 'Heart-shaped':
+                points = [
+                    { x: 450, y: 360 },
+                    { x: 535, y: 280 },
+                    { x: 585, y: 280 },
+                    { x: 655, y: 345 },
+                    { x: 655, y: 500 },
+                    { x: 450, y: 665 },
+                    { x: 245, y: 500 },
+                    { x: 245, y: 345 },
+                    { x: 315, y: 280 },
+                    { x: 365, y: 280 },
+                ];
+                break;
+            default:
+                points = [
+                    { x: 100, y: 415 },
+                    { x: 100, y: 312 },
+                    { x: 130, y: 275 },
+                    { x: 165, y: 275 },
+                    { x: 165, y: 335 },
+                    { x: 205, y: 275 },
+                    { x: 235, y: 275 },
+                    { x: 235, y: 335 },
+                    { x: 285, y: 275 },
+                    { x: 335, y: 275 },
+                    { x: 360, y: 235 },
+                    { x: 400, y: 295 },
+                    { x: 400, y: 410 },
+                    { x: 480, y: 395 },
+                    { x: 565, y: 395 },
+                    { x: 633, y: 395 },
+                    { x: 684, y: 295 },
+                    { x: 630, y: 295 },
+                    { x: 586, y: 295 },
+                    { x: 560, y: 355 },
+                    { x: 520, y: 260 },
+                    { x: 592, y: 195 },
+                    { x: 790, y: 315 },
+                    { x: 700, y: 488 },
+                    { x: 800, y: 495 },
+                    { x: 700, y: 595 },
+                    { x: 654, y: 595 },
+                    { x: 592, y: 595 },
+                    { x: 540, y: 615 },
+                    { x: 487, y: 615 },
+                    { x: 442, y: 595 },
+                    { x: 400, y: 595 },
+                    { x: 368, y: 595 },
+                    { x: 320, y: 575 },
+                    { x: 360, y: 555 },
+                    { x: 460, y: 535 },
+                    { x: 520, y: 535 },
+                    { x: 580, y: 535 },
+                    { x: 640, y: 515 },
+                    { x: 360, y: 515 },
+                    { x: 360, y: 415 },
+                    { x: 280, y: 375 },
+                    { x: 280, y: 455 },
+                    { x: 240, y: 415 },
+                    { x: 212, y: 415 },
+                    { x: 212, y: 455 },
+                    { x: 169, y: 415 },
+                    { x: 152, y: 415 },
+                    { x: 140, y: 367 },
+                    { x: 140, y: 455 },
+                    { x: 120, y: 415 },
+                ];
+        }
         draw(true, true);
     }
 
@@ -262,12 +329,12 @@
      * 获取外接矩形
      */
     function getCircumscribedRectangle() {
-        const xSort = points.map((item) => item.x).sort((a, b) => a - b);
-        const ySort = points.map((item) => item.y).sort((a, b) => a - b);
-        const top = ySort[0];
-        const right = xSort[xSort.length - 1];
-        const bottom = ySort[ySort.length - 1];
-        const left = xSort[0];
+        const xs = points.map((item) => item.x);
+        const ys = points.map((item) => item.y);
+        const top = Math.min(...ys);
+        const right = Math.max(...xs);
+        const bottom = Math.max(...ys);
+        const left = Math.min(...xs);
         const topLeft = { x: left, y: top };
         const topRight = { x: right, y: top };
         const bottomRight = { x: right, y: bottom };
@@ -359,20 +426,176 @@
         }
     }
     /**
+     * 求出多边形内部在边的哪一边
+     */
+    function getDirection() {
+        for (let i = 0; i < points.length; i++) {
+            const startIndex = i;
+            const endIndex = i + 1 >= points.length ? 0 : i + 1;
+            const lineStartPoint = points[startIndex];
+            const lineEndPoint = points[endIndex];
+            // 不处理平行线
+            if (lineStartPoint.y === lineEndPoint.y) continue;
+            const midPoint = {
+                x: (lineStartPoint.x + lineEndPoint.x) / 2,
+                y: (lineStartPoint.y + lineEndPoint.y) / 2,
+            };
+            const midRightPoint = {
+                ...midPoint,
+                x: midPoint.x + 0.1,
+            };
+            // const midLeftPoint = {
+            //     ...midPoint,
+            //     x: midPoint.x - 0.1,
+            // }
+            const isRightInPoly = rayCasting(midRightPoint, points) === 'in';
+            // const isLeftPoint = rayCasting(midLeftPoint, points) === 'in'
+            // 判断该线段的方向是向下还是向上
+            if (lineEndPoint.y < lineStartPoint.y) {
+                // 向上
+                return isRightInPoly ? 'right' : 'left';
+            } // 向下
+            else {
+                return isRightInPoly ? 'left' : 'right';
+            }
+        }
+    }
+    /**
+     * @description 射线法判断点是否在多边形内部
+     * @param {Object} p 待判断的点，格式：{ x: X坐标, y: Y坐标 }
+     * @param {Array} poly 多边形顶点，数组成员的格式同 p
+     * @return {String} 点 p 和多边形 poly 的几何关系
+     */
+    function rayCasting(p, poly) {
+        var px = p.x,
+            py = p.y,
+            flag = false;
+        for (var i = 0, l = poly.length, j = l - 1; i < l; j = i, i++) {
+            var sx = poly[i].x,
+                sy = poly[i].y,
+                tx = poly[j].x,
+                ty = poly[j].y;
+            // 点与多边形顶点重合
+            if ((sx === px && sy === py) || (tx === px && ty === py)) {
+                return 'on';
+            }
+            // 判断线段两端点是否在射线两侧
+            if ((sy < py && ty >= py) || (sy >= py && ty < py)) {
+                // 线段上与射线 Y 坐标相同的点的 X 坐标
+                var x = sx + ((py - sy) * (tx - sx)) / (ty - sy);
+                // 点在多边形的边上
+                if (x === px) {
+                    return 'on';
+                }
+                // 射线穿过多边形的边界
+                if (x > px) {
+                    flag = !flag;
+                }
+            }
+        }
+        // 射线穿过多边形边界的次数为奇数时点在多边形内
+        return flag ? 'in' : 'out';
+    }
+    /**
+     *
+     */
+    function getNeighboringPoints(index) {
+        const isFirstVertex = index === 0;
+        const isLastVertex = index === points.length - 1;
+        return {
+            currentVertex: points[index],
+            previousVertex: isFirstVertex
+                ? points[points.length - 2]
+                : points[index - 1],
+            nextVertex: isLastVertex ? points[1] : points[index + 1],
+        };
+    }
+    /**
+     * 检测多边形顶点是否要去除
+     */
+    function checkPointNeedRemove(index) {
+        const {
+            currentVertex: p,
+            previousVertex,
+            nextVertex,
+        } = getNeighboringPoints(index);
+        const closingDirection = getDirection();
+        const isTangencyPoint =
+            Math.sign(previousVertex.y - p.y) === Math.sign(nextVertex.y - p.y); // 前后两个点在同一侧，说明该顶点与横向栅格线相切
+
+        if (isTangencyPoint) {
+            return true;
+        }
+
+        // 改点的前后两段都是水平线
+        if (p.y === previousVertex.y && p.y === nextVertex.y) {
+            return true;
+        }
+
+        let pointNeedRemove = false;
+        // 第一段是水平线
+        if (p.y === previousVertex.y) {
+            if (p.x > previousVertex.x) {
+                // 线段从左往右 start ---->p
+                //                        \
+                //                         \
+                if (
+                    (closingDirection === 'right' && nextVertex.y > p.y) ||
+                    (closingDirection === 'left' && nextVertex.y < p.y)
+                ) {
+                    pointNeedRemove = true;
+                }
+            } else {
+                // 线段从右往左   p<---- start
+                //             /
+                //            /
+                if (
+                    (closingDirection === 'right' && nextVertex.y < p.y) ||
+                    (closingDirection === 'left' && nextVertex.y > p.y)
+                ) {
+                    pointNeedRemove = true;
+                }
+            }
+        }
+
+        // 第二段是水平线
+        if (p.y === nextVertex.y) {
+            if (p.x < nextVertex.x) {
+                //  线段从左往右   p----> end
+                //              /
+                //             /
+                if (
+                    (closingDirection === 'right' && previousVertex.y > p.y) ||
+                    (closingDirection === 'left' && previousVertex.y < p.y)
+                ) {
+                    pointNeedRemove = true;
+                }
+            } else {
+                //  线段从右往左 end  <----p
+                //                        \
+                //                         \
+                if (
+                    (closingDirection === 'right' && previousVertex.y < p.y) ||
+                    (closingDirection === 'left' && previousVertex.y > p.y)
+                ) {
+                    pointNeedRemove = true;
+                }
+            }
+        }
+
+        return pointNeedRemove;
+    }
+    /**
      * 多边形内部均匀取点
      */
     function pointPolygonInternal() {
         try {
-            const { top, right, bottom, left } = getCircumscribedRectangle(); // 取外接矩形
-            console.log('外接矩形', {
-                top,
-                right,
-                bottom,
-                left,
-            });
+            const circumscribedRectangle = getCircumscribedRectangle(); // 取外接矩形
+            const { top, right, bottom, left } = circumscribedRectangle;
+            console.log('外接矩形', circumscribedRectangle);
             const rows = {}; // 用于存储多边形每条边跟横向栅格线的交点
 
-            console.log('points', points);
+            console.log('多边形顶点', points);
             points.forEach((item, index) => {
                 if (index >= points.length - 1) {
                     return; // 最后一个点
@@ -393,10 +616,7 @@
                 }
                 const minY = Math.min(point1.y, point2.y);
                 const maxY = Math.max(point1.y, point2.y);
-                if (minY === maxY) {
-                    // 水平的边，不需要打点
-                    return;
-                }
+
                 // 获取与线段有交点的横向栅格线范围
                 const minGridY = getNearestVaule(minY, top, interval, 'ceil');
                 const maxGridY = getNearestVaule(maxY, top, interval, 'floor');
@@ -406,67 +626,70 @@
                     key <= maxGridY;
                     key = key + interval
                 ) {
-                    const isPoint1 = key === point1.y; // point1在横栅格线上
-                    const isPoint2 = key === point2.y; // point2在横栅格线上
-                    const linearEquation = !isVerticalLine
-                        ? (key - b) / k
-                        : point1.x; // 求x的一次方程，  当线段为时无法得出一次方程，直接取point1.x
+                    if (key === point2.y && point1.y !== point2.y) {
+                        // point2在栅格线上且当前线段不是水平线段时直接跳过，防止重复的处理point2
+                        // point1.y === point2.y时线段为水平线，for循环只会进入一次，所以也只会处理point1
+                        // 所以这句判断的效果是直接跳过每个point2的处理（当前线段的point2也是下一条线段的point1，所以point2不需要被处理）
+                        continue;
+                    }
+
+                    /**
+                     * 上面已经跳过了point2在栅格线上的情况了，下面只要处理point1在栅格线上的情况就可以
+                     */
+                    const isPoint1OnGrid = key === point1.y; // point1在横栅格线上
+                    const linearEquation =
+                        !isVerticalLine && k ? (key - b) / k : point1.x; // 求x的一次方程，当线段为竖线或水平线时无法得出x的一次方程，直接取point1.x
                     const p = {
-                        x: isPoint1
-                            ? point1.x
-                            : isPoint2
-                            ? point2.x
-                            : linearEquation, // 当p点是顶点时直接使用一次方程公式算出来的x可能会跟顶点的x有很小的误差(比如顶点x为512， 算出来可能是519.99999999)，所以这里当p点是顶点时直接去顶点的x值
+                        x: isPoint1OnGrid ? point1.x : linearEquation, // 当p点是顶点时直接使用一次方程公式算出来的x可能会跟顶点的x有很小的误差(比如顶点x为512， 算出来可能是519.99999999)，所以这里当p点是顶点时直接去顶点的x值
                         y: key,
-                        index,
                     };
 
-                    let isTangent = false;
-                    console.log(key, point1, point2);
-                    if (isPoint1) {
-                        // point1在横栅格线上
-                        const isFirstVertex = index === 0;
-                        const previousVertex = isFirstVertex
-                            ? points[points.length - 2]
-                            : points[index - 1];
-                        const nextVertex = point2;
-                        isTangent =
-                            Math.sign(previousVertex.y - key) ===
-                            Math.sign(nextVertex.y - key); // 前后两个点在同一侧，说明该顶点与横向栅格线相切
-                        console.log('isTangent1', isTangent, p);
-                    }
-                    if (isPoint2) {
-                        // point2在横栅格线上
-                        const isLastVertex = index + 1 === points.length - 1;
-                        const previousVertex = point1;
-                        const nextVertex = isLastVertex
-                            ? points[1]
-                            : points[index + 2];
-                        isTangent =
-                            Math.sign(previousVertex.y - key) ===
-                            Math.sign(nextVertex.y - key); // 前后两个点在同一侧，说明该顶点与横向栅格线相切
-                        console.log('isTangent2', isTangent, p);
-                    }
-
+                    // point1在横栅格线上, 判断point1是否要去掉
+                    if (isPoint1OnGrid && checkPointNeedRemove(index)) continue;
                     // 将多边形每条边跟横向栅格线的交点存储到rows对象中，rows对象的每个key值为该行栅格线的Y值
                     if (!rows[`${key}`]) {
-                        rows[`${key}`] = !isTangent ? [p] : [];
+                        rows[`${key}`] = [p];
                     } else {
-                        const currentRow = rows[`${key}`];
-                        const rowFirstPoint = currentRow[0]; // 该行第一个点
-                        const rowLastPoint = currentRow[currentRow.length - 1]; // 该行最后一个点
-                        const hasSamePoint =
-                            rowFirstPoint &&
-                            rowLastPoint &&
-                            (p.x === rowFirstPoint.x || p.x === rowLastPoint.x); // 去重，新加的点不等于该行的上一个点和该行的第一个点
-
-                        if (!hasSamePoint && !isTangent) {
-                            currentRow.push(p);
-                        }
+                        rows[`${key}`].push(p);
                     }
+
+                    /** 不跳过point2, point1和point2都处理 **/
+                    // const isPoint1OnGrid = key === point1.y; // point1在横栅格线上
+                    // const isPoint2OnGrid = key === point2.y; // point2在横栅格线上
+                    // // point1在横栅格线上, 判断point1是否要去掉
+                    // if (isPoint1OnGrid && checkPointNeedRemove(index)) continue;
+                    // // point2在横栅格线上, 判断point2是否要去掉
+                    // if (isPoint2OnGrid && checkPointNeedRemove(index + 1))
+                    //     continue;
+                    // const linearEquation =
+                    //     !isVerticalLine && k ? (key - b) / k : point1.x; // 求x的一次方程，当线段为竖线或水平线时无法得出x的一次方程，直接取point1.x
+                    // const p = {
+                    //     x: isPoint1OnGrid
+                    //         ? point1.x
+                    //         : isPoint2OnGrid
+                    //         ? point2.x
+                    //         : linearEquation, // 当p点是顶点时直接使用一次方程公式算出来的x可能会跟顶点的x有很小的误差(比如顶点x为512， 算出来可能是519.99999999)，所以这里当p点是顶点时直接去顶点的x值
+                    //     y: key,
+                    // };
+
+                    // // 将多边形每条边跟横向栅格线的交点存储到rows对象中，rows对象的每个key值为该行栅格线的Y值
+                    // if (!rows[`${key}`]) {
+                    //     rows[`${key}`] = [p];
+                    // } else {
+                    //     const currentRow = rows[`${key}`];
+                    //     const rowFirstPoint = currentRow[0]; // 该行第一个点
+                    //     const rowLastPoint = currentRow[currentRow.length - 1]; // 该行最后一个点
+                    //     const hasSamePoint =
+                    //         rowFirstPoint &&
+                    //         rowLastPoint &&
+                    //         (p.x === rowFirstPoint.x || p.x === rowLastPoint.x); // 去重，新加的点不等于该行的上一个点和该行的第一个点
+
+                    //     if (!hasSamePoint) {
+                    //         currentRow.push(p);
+                    //     }
+                    // }
                 }
             });
-            console.log('每条边与横向栅格线的交点：', rows);
             const pointsSave = [];
             Object.values(rows).forEach((_item) => {
                 const rowPoints = _item.sort((a, b) => a.x - b.x); // 排序
@@ -477,9 +700,9 @@
                         row: rowPoints,
                         rows,
                     };
-                    throw error; // 直接报错，不继续绘制剩余的点
-                    // console.error(error.message, error);
-                    // return; // 继续绘制剩余的点
+                    // throw error; // 直接报错，不继续绘制剩余的点
+                    console.error(error.message, error);
+                    return; // 继续绘制剩余的点
                 }
                 // 在两个交点之间均匀取点
                 for (let i = 0; i <= rowPoints.length - 1; i = i + 2) {
@@ -497,6 +720,9 @@
                         pointX <= endPoint.x;
                         pointX = pointX + interval
                     ) {
+                        // const pointNotOnSide =
+                        //     pointX !== startPoint.x && pointX !== endPoint.x; // 点不在多边形边上
+                        // if (pointNotOnSide) {
                         pointsSave.push({ x: pointX, y: pointY });
                         drawPoint(
                             pointX,
@@ -504,10 +730,11 @@
                             pointRadius,
                             polygonPointColor
                         );
+                        // }
                     }
                 }
             });
-            console.log('每条边与横向栅格线的交点(处理后)：', rows);
+            console.log('每条边与横向栅格线的交点：', rows);
             console.log('多边形内部取点结果：', pointsSave);
         } catch (error) {
             console.error('多边形内部取点失败', error);
@@ -556,17 +783,6 @@
     function drawGrid() {
         try {
             const { top, right, bottom, left } = getCircumscribedRectangle();
-
-            // // 画外接矩形 - Circumscribed rectangle
-            // const topLeft = { x: left, y: top };
-            // const topRight = { x: right, y: top };
-            // const bottomRight = { x: right, y: bottom };
-            // const bottomLeft = { x: left, y: bottom };
-            // drawLine(
-            //     [topLeft, topRight, bottomRight, bottomLeft, topLeft],
-            //     gridLineWidth,
-            //     gridColor
-            // );
             const isDefaultDatum = gridCoordinateDatumType === 'default';
             const gridLeft = isDefaultDatum ? 0 : left; // Math.floor(left / interval) * interval;
             const gridRight = isDefaultDatum ? pageWidth : right; // Math.ceil(right / interval) * interval;
