@@ -4,34 +4,43 @@ import React, { useRef, useCallback, useMemo, useState, useEffect } from 'react'
 
 const HookTest: React.FunctionComponent<{}> = function (props) {
 	console.log('RenderTest')
+	const [textObject, setTestObject] = useState<{
+		content?: {
+			t: string
+		}
+	} | undefined>()
 
-	const [text ,setText] = useState<string>('')
-	const onInput = useCallback((e) =>
-	{
+	const [text, setText] = useState<string>('')
+	const onInput = useCallback((e) => {
 		console.log('e', e.target.value)
 		setText(e.target.value)
+		e.target.value && setTestObject({ content: { t: e.target.value } })
 	}, [])
 
+	const textContent = useMemo(() => {
+		return textObject?.content?.t
+	}, [textObject?.content?.t])
+	console.log('t', textContent)
 	return (
 		<div>
 			<RenderItem1 text={text} />
 			<Input value={text} onInput={onInput}></Input>
-			<span>{text}</span>
+			<p>{text}</p>
+			<p>{textContent}</p>
 		</div>
 	)
 }
 
-const _RenderItem1: React.FunctionComponent<{text:string}> = function (props) {
+const _RenderItem1: React.FunctionComponent<{ text: string }> = function (props) {
 	console.log('RenderItem111')
-    const {text } = props
-    const [content, setContent] = useState('')
-	const onClick = useCallback(() =>
-    {
-        setContent(text)
-    }, [text])
+	const { text } = props
+	const [content, setContent] = useState('')
+	const onClick = useCallback(() => {
+		setContent(text)
+	}, [text])
 	return (
 		<div>
-            <Button onClick={onClick}>setContent</Button>
+			<Button onClick={onClick}>setContent</Button>
 			{content}
 		</div>
 	)
