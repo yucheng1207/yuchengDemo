@@ -172,16 +172,16 @@
         switch (polygonName) {
             case 'Heart-shaped':
                 points = [
-                    { x: 450, y: 360 },
-                    { x: 535, y: 280 },
-                    { x: 585, y: 280 },
-                    { x: 655, y: 345 },
-                    { x: 655, y: 500 },
-                    { x: 450, y: 665 },
-                    { x: 245, y: 500 },
-                    { x: 245, y: 345 },
-                    { x: 315, y: 280 },
-                    { x: 365, y: 280 },
+                    { x: 350, y: 260 },
+                    { x: 435, y: 180 },
+                    { x: 485, y: 180 },
+                    { x: 555, y: 245 },
+                    { x: 555, y: 400 },
+                    { x: 350, y: 565 },
+                    { x: 145, y: 400 },
+                    { x: 145, y: 245 },
+                    { x: 215, y: 180 },
+                    { x: 265, y: 180 },
                 ];
                 break;
             default:
@@ -513,13 +513,12 @@
     /**
      * 检测多边形顶点是否要去除
      */
-    function checkPointNeedRemove(index) {
+    function checkPointNeedRemove(index, closingDirection) {
         const {
             currentVertex: p,
             previousVertex,
             nextVertex,
         } = getNeighboringPoints(index);
-        const closingDirection = getDirection();
         const isTangencyPoint =
             Math.sign(previousVertex.y - p.y) === Math.sign(nextVertex.y - p.y); // 前后两个点在同一侧，说明该顶点与横向栅格线相切
 
@@ -590,6 +589,7 @@
      */
     function pointPolygonInternal() {
         try {
+            const closingDirection = getDirection(); // 求出多边形内部在边的哪一边
             const circumscribedRectangle = getCircumscribedRectangle(); // 取外接矩形
             const { top, right, bottom, left } = circumscribedRectangle;
             console.log('外接矩形', circumscribedRectangle);
@@ -645,7 +645,11 @@
                     };
 
                     // point1在横栅格线上, 判断point1是否要去掉
-                    if (isPoint1OnGrid && checkPointNeedRemove(index)) continue;
+                    if (
+                        isPoint1OnGrid &&
+                        checkPointNeedRemove(index, closingDirection)
+                    )
+                        continue;
                     // 将多边形每条边跟横向栅格线的交点存储到rows对象中，rows对象的每个key值为该行栅格线的Y值
                     if (!rows[`${key}`]) {
                         rows[`${key}`] = [p];
@@ -657,9 +661,9 @@
                     // const isPoint1OnGrid = key === point1.y; // point1在横栅格线上
                     // const isPoint2OnGrid = key === point2.y; // point2在横栅格线上
                     // // point1在横栅格线上, 判断point1是否要去掉
-                    // if (isPoint1OnGrid && checkPointNeedRemove(index)) continue;
+                    // if (isPoint1OnGrid && checkPointNeedRemove(index, closingDirection)) continue;
                     // // point2在横栅格线上, 判断point2是否要去掉
-                    // if (isPoint2OnGrid && checkPointNeedRemove(index + 1))
+                    // if (isPoint2OnGrid && checkPointNeedRemove(index + 1, closingDirection))
                     //     continue;
                     // const linearEquation =
                     //     !isVerticalLine && k ? (key - b) / k : point1.x; // 求x的一次方程，当线段为竖线或水平线时无法得出x的一次方程，直接取point1.x
