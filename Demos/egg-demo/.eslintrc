@@ -1,3 +1,7 @@
 {
-  "extends": "eslint-config-egg"
+    "extends": "eslint-config-egg",
+    "rules": {
+        "indent": ["off", 2],
+        "space-before-function-paren": "off"
+    }
 }

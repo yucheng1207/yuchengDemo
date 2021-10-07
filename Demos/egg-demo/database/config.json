@@ -1,0 +1,19 @@
+{
+    "development": {
+        "username": "root",
+        "password": "123456",
+        "database": "egg-sequelize-doc-default",
+        "host": "127.0.0.1",
+        "dialect": "mysql",
+        "dialectOptions": {
+            "socketPath": "/tmp/mysql.sock"
+        }
+    },
+    "test": {
+        "username": "root",
+        "password": "123456",
+        "database": "egg-sequelize-doc-unittest",
+        "host": "127.0.0.1",
+        "dialect": "mysql"
+    }
+}
