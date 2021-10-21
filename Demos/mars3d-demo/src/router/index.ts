@@ -1,7 +1,8 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
-import Home from '@/views/home.vue'
-import Vuex from '@/views/vuex.vue'
-import Test from '@/views/Test.vue'
+import Home from '@/views/Home/index.vue'
+import Vuex from '@/views/Vuex/index.vue'
+import Test from '@/views/Text/index.vue'
+import Mars3d from '@/views/Mars3d/index.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -20,9 +21,14 @@ const routes: Array<RouteRecordRaw> = [
     component: Vuex
   },
   {
+    path: '/mars3d',
+    name: 'Mars3d',
+    component: Mars3d
+  },
+  {
     path: '/axios',
     name: 'Axios',
-    component: () => import('@/views/axios.vue') // 懒加载组件
+    component: () => import('@/views/Axios/index.vue') // 懒加载组件
   }
 ]
 

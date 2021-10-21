@@ -2,10 +2,11 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 import importElementPlus from 'vite-plugin-element-plus'
+import mars3dCesium from 'vite-plugin-mars3d'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [vue(), importElementPlus({})],
+  plugins: [vue(), importElementPlus({}), mars3dCesium()],
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src') // 设置 `@` 指向 `src` 目录
@@ -27,4 +28,11 @@ export default defineConfig({
     //   }
     // }
   }
+  // css: {
+  //   preprocessorOptions: {
+  //     scss: {
+  //       additionalData: '@import "@/styles/variables.scss";'
+  //     }
+  //   }
+  // }
 })
