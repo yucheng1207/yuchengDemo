@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>测试HTML</title>
+    </head>
+
+    <body>
+        <div id="root">
+            <span>测试测试测试测试</span>
+        </div>
+    </body>
+</html>
+
+<script>
+    window.onload = function() {
+        console.log('test html load success!')
+    }
+    // 自定义方法
+    window.myFunction = async function() {
+        return new Promise((resolve) =>
+        {
+            setTimeout(() =>
+            {
+                resolve(555)
+            }, 2000)
+        })
+    }
+    // // 关闭页面
+    // setTimeout(() =>
+    // {
+    //     // puppeteer 加载改页面时调用window.close()会报错：Scripts may close only the windows that were opened by them
+    //     window.close()
+    // }, 1000)
+</script>
