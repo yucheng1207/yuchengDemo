@@ -31,7 +31,7 @@ const puppeteer = require('puppeteer');
 //                              console.log('sampleHeightMostDetailed result', result)
 //                              resolve({
 //                                  isAllVaild: isVaildResult,
-//                                  result
+//                                  points: result
 //                              })
 //                          }
 //                          else
@@ -127,8 +127,6 @@ const getModelPointsHeight = async (url, points) => {
     return result
 };
 
-module.exports = getModelPointsHeight;
-
 async function main()
 {
     if (require.main === module) {
@@ -142,8 +140,10 @@ async function main()
             lng: 120.6893039381743
         }]
         const data = await getModelPointsHeight(openPath, points);
-        console.log('height', data.result.map(item => item.height))
+        console.log('height', data.points.map(item => item.height))
     }
 }
 
 main()
+
+// module.exports = main;
