@@ -1,5 +1,16 @@
 <template>
   <MarsMap :url="configUrl" map-key="test" @onload="marsOnload" />
+  <div class="control_bar">
+    <span class="title">Tileset链接：</span>
+    <el-input
+      class="input"
+      :modelValue="modelUrl"
+      placeholder="请输入 tileset.json 链接"
+      @input="onInput"
+    ></el-input>
+    <el-button @click="loadTileset">加载</el-button>
+    <el-button @click="locateTiles3dLayer">定位到模型</el-button>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -266,7 +277,7 @@ const testApi = {
   }
 }
 
-const marsOnload = (map: any) => {
+function addGraphicLayer(map: any) {
   const graphicLayer = new mars3d.layer.GraphicLayer()
   map.addLayer(graphicLayer)
 
@@ -317,6 +328,118 @@ const marsOnload = (map: any) => {
   testApi.addGraphic_e14(graphicLayer)
   testApi.addGraphic_e15(graphicLayer)
 }
+
+let mars3dMap: any = null
+let tiles3dLayer: any = null
+const myWindow: any = window
+
+function locateTiles3dLayer() {
+  if (!mars3dMap) return
+  if (tiles3dLayer.tileset?.boundingSphere) {
+    mars3dMap.camera.flyToBoundingSphere(tiles3dLayer.tileset.boundingSphere, {
+      offset: new Cesium.HeadingPitchRange(
+        mars3dMap.camera.heading,
+        mars3dMap.camera.pitch,
+        tiles3dLayer.tileset.boundingSphere.radius * 2
+      )
+    })
+  } else {
+    mars3dMap.flyToPoint(tiles3dLayer.position, {
+      radius: tiles3dLayer.tileset.boundingSphere.radius * 2
+    })
+  }
+}
+
+function removeTiles3dLayer() {
+  if (!mars3dMap || !tiles3dLayer) return
+
+  mars3dMap.basemap = 2021 // 切换到默认卫星底图
+  mars3dMap.removeLayer(tiles3dLayer, true)
+  tiles3dLayer = null
+}
+
+function addTilesetLayer(url: string) {
+  if (tiles3dLayer) {
+    removeTiles3dLayer()
+  }
+
+  if (!mars3dMap) return
+
+  tiles3dLayer = new mars3d.layer.TilesetLayer({
+    name: '模型',
+    url,
+    // url: '//data.mars3d.cn/3dtiles/qx-shequ/tileset.json',
+    position: { alt: 11.5 },
+    maximumScreenSpaceError: 1,
+    maximumMemoryUsage: 1024,
+    dynamicScreenSpaceError: true,
+    cullWithChildrenBounds: false,
+    skipLevelOfDetail: true,
+    preferLeaves: true,
+    // center: { lat: 28.439577, lng: 119.476925, alt: 229, heading: 57, pitch: -29 },
+    // center: map.getCameraView(),
+    flyTo: true
+  })
+  mars3dMap.addLayer(tiles3dLayer)
+
+  // locate(map, tiles3dLayer)
+
+  // 加载的事件 只执行一次
+  tiles3dLayer.on(mars3d.EventType.initialTilesLoaded, function (event: any) {
+    console.log('触发initialTilesLoaded事件', event)
+  })
+
+  // 会执行多次，重新加载一次完成后都会回调
+  tiles3dLayer.on(mars3d.EventType.allTilesLoaded, function (event: any) {
+    console.log('触发allTilesLoaded事件', event)
+  })
+}
+
+const registerWindow = () => {
+  if (mars3dMap) {
+    myWindow.map = mars3dMap
+    myWindow.addTilesetLayer = addTilesetLayer
+  }
+}
+
+const modelUrl = ref('//data.mars3d.cn/3dtiles/qx-shequ/tileset.json')
+
+const onInput = (value: string) => {
+  modelUrl.value = value
+}
+
+const loadTileset = () => {
+  addTilesetLayer(modelUrl.value)
+}
+
+const marsOnload = (map: any) => {
+  mars3dMap = map
+  registerWindow()
+  addGraphicLayer(map)
+  console.log(modelUrl.value)
+  addTilesetLayer(modelUrl.value)
+}
 </script>
 
-<style></style>
+<style scoped lang="scss">
+.control_bar {
+  position: absolute;
+  top: 0;
+  padding: 16px 24px;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+
+  .title {
+    color: white;
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+  }
+
+  .input {
+    width: 50%;
+    margin-right: 24px;
+  }
+}
+</style>

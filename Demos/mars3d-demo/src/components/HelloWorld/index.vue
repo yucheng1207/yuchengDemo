@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 defineProps<{ msg: string }>()
 
 const count = ref(0)
@@ -29,6 +31,8 @@ const count = ref(0)
     Edit
     <code>components/HelloWorld.vue</code> to test hot module replacement.
   </p>
+  <!-- <router-link to="/mars3d">Mars3d Demo</router-link> -->
+  <el-button @click="router.push('/mars3d')">Mars3d Demo</el-button>
 </template>
 
 <style scoped>

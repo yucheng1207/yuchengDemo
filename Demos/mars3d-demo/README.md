@@ -7,9 +7,15 @@ Mars3D平台可用于构建无插件、跨操作系统、 跨浏览器的三维 
 
 ## 相关网站
 
-- Mars3D官网：http://mars3d.cn
+- [Mars3D 官网](http://mars3d.cn)
 
-- GitHub导航列表：https://github.com/marsgis/mars3d
+- [Mars3D API](http://mars3d.cn/api/Map.html)
+
+- [Mars3D GitHub](https://github.com/marsgis/mars3d)
+
+- [Mars3D 架构图](http://mars3d.cn/img/jiagou.jpg)
+
+- [Cesium 架构图](http://mars3d.cn/img/jiagou-cesium.png)
 
 # 开始
 

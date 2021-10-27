@@ -3,6 +3,7 @@
 </template>
 <script setup lang="ts">
 import { onMounted, computed, onBeforeUnmount, getCurrentInstance } from 'vue'
+import options from './config'
 
 const instance = getCurrentInstance()
 const mars3d = instance?.appContext.config.globalProperties.mars3d
@@ -34,15 +35,20 @@ const initMars3d = (option: object) => {
   emit('onload', mapviewer)
 }
 
+const useConfigJson = false
 onMounted(() => {
   // 获取配置
-  mars3d.Resource.fetchJson({ url: props.url }).then((data: any) => {
-    initMars3d({
-      // 合并配置项
-      ...props.options,
-      ...data.map3d
+  if (useConfigJson) {
+    mars3d.Resource.fetchJson({ url: props.url }).then((data: any) => {
+      initMars3d({
+        // 合并配置项
+        ...props.options,
+        ...data.map3d
+      })
     })
-  })
+  } else {
+    initMars3d(options)
+  }
 })
 
 // 组件卸载之前销毁mars3d实例
