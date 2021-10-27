@@ -1,15 +1,31 @@
 <template>
   <MarsMap :url="configUrl" map-key="test" @onload="marsOnload" />
   <div class="control_bar">
-    <span class="title">Tileset链接：</span>
-    <el-input
-      class="input"
-      :modelValue="modelUrl"
-      placeholder="请输入 tileset.json 链接"
-      @input="onInput"
-    ></el-input>
-    <el-button @click="loadTileset">加载</el-button>
-    <el-button @click="locateTiles3dLayer">定位到模型</el-button>
+    <div class="row">
+      <span class="title">Tileset链接：</span>
+      <el-input
+        class="input"
+        :modelValue="modelUrl"
+        placeholder="请输入 tileset.json 链接"
+        @input="onInput"
+      ></el-input>
+      <el-button @click="loadTileset">加载</el-button>
+      <el-button @click="locateTiles3dLayer">定位到模型</el-button>
+    </div>
+    <div class="row">
+      <el-button @click="measureLength">空间距离</el-button>
+      <el-button @click="measureArea">水平面积</el-button>
+      <el-button @click="measureHeight">高度差</el-button>
+      <el-button @click="measurePoint">坐标测量</el-button>
+      <div style="width: 60px" />
+      <el-button @click="removeAll">清除</el-button>
+    </div>
+    <div class="row">
+      <el-button @click="measureSurfaceLength">贴地距离</el-button>
+      <el-button @click="measureSurfaceeArea">贴地面积</el-button>
+      <el-button @click="measureTriangleHeight">三角测量</el-button>
+      <el-button @click="measureAngle">方位角</el-button>
+    </div>
   </div>
 </template>
 
@@ -382,15 +398,13 @@ function addTilesetLayer(url: string) {
   })
   mars3dMap.addLayer(tiles3dLayer)
 
-  // locate(map, tiles3dLayer)
-
   // 加载的事件 只执行一次
-  tiles3dLayer.on(mars3d.EventType.initialTilesLoaded, function (event: any) {
+  tiles3dLayer.on(mars3d.EventType.initialTilesLoaded, (event: any) => {
     console.log('触发initialTilesLoaded事件', event)
   })
 
   // 会执行多次，重新加载一次完成后都会回调
-  tiles3dLayer.on(mars3d.EventType.allTilesLoaded, function (event: any) {
+  tiles3dLayer.on(mars3d.EventType.allTilesLoaded, (event: any) => {
     console.log('触发allTilesLoaded事件', event)
   })
 }
@@ -412,12 +426,123 @@ const loadTileset = () => {
   addTilesetLayer(modelUrl.value)
 }
 
+let measure: any = null
+
+const addMeasureThing = () => {
+  if (!mars3dMap) return
+  measure = new mars3d.thing.Measure({
+    label: {
+      color: '#ffffff',
+      font_family: '楷体',
+      font_size: 20,
+      background: false
+    }
+  })
+  mars3dMap.addThing(measure)
+
+  measure.on(mars3d.EventType.start, (e: any) => {
+    console.log('开始异步分析', e)
+    // haoutil.loading.show();
+  })
+  measure.on(mars3d.EventType.end, (e: any) => {
+    console.log('完成异步分析', e)
+    // haoutil.loading.hide();
+
+    if (e.graphic?.type === mars3d.graphic.AreaSurfaceMeasure.type && e.list) {
+      // showInterResult(e.list); //在js/showPolygonInter.js
+    }
+  })
+
+  // 任意一个矢量数据被移出，贴地面积中的插值计算点都会被移除
+  // measure.on(mars3d.EventType.remove, function (e) {
+  //   clearInterResult(); //在js/showPolygonInter.js
+  // });
+
+  // $('#chk_onlyPickModelPosition').change(function () {
+  //   const val = $(this).is(':checked')
+
+  //   // 控制鼠标只取模型上的点，忽略地形上的点的拾取
+  //   mars3dMap.onlyPickModelPosition = val
+  // })
+}
+
+// 外部控制，完成绘制，比如手机端无法双击结束
+function endDraw() {
+  measure.endDraw()
+}
+
+function removeAll() {
+  measure.clear()
+  // clearInterResult() // 在js/showPolygonInter.js
+}
+// 空间距离
+function measureLength() {
+  measure.distance({
+    showAddText: true
+    // style: {
+    //   color: '#ffff00',
+    //   width: 3,
+    //   clampToGround: false //是否贴地
+    // }
+  })
+}
+// 贴地距离
+function measureSurfaceLength() {
+  measure.distanceSurface({
+    showAddText: true
+    // unit: 'm', //支持传入指定计量单位
+    // style: {
+    //   color: '#ffff00',
+    //   width: 3,
+    //   clampToGround: true //是否贴地
+    // }
+  })
+}
+// 水平面积
+function measureArea() {
+  measure.area({
+    // style: {
+    //   color: '#00fff2',
+    //   opacity: 0.4,
+    //   outline: true,
+    //   outlineColor: '#fafa5a',
+    //   outlineWidth: 1,
+    //   clampToGround: false //贴地
+    // }
+  })
+}
+// 贴地面积
+function measureSurfaceeArea() {
+  measure.areaSurface({
+    style: {
+      color: '#ffff00'
+    },
+    splitNum: 10 // step插值分割的个数
+  })
+}
+// 高度差
+function measureHeight() {
+  measure.height()
+}
+// 三角测量
+function measureTriangleHeight() {
+  measure.heightTriangle()
+}
+// 方位角
+function measureAngle() {
+  measure.angle()
+}
+// 坐标测量
+function measurePoint() {
+  measure.point()
+}
+
 const marsOnload = (map: any) => {
   mars3dMap = map
   registerWindow()
   addGraphicLayer(map)
-  console.log(modelUrl.value)
   addTilesetLayer(modelUrl.value)
+  addMeasureThing()
 }
 </script>
 
@@ -428,18 +553,30 @@ const marsOnload = (map: any) => {
   padding: 16px 24px;
   width: 100%;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+
+  .row {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    margin-bottom: 16px;
+  }
+
+  .row:last-child {
+    margin-bottom: 0;
+  }
 
   .title {
     color: white;
     display: flex;
     align-items: center;
     font-weight: bold;
+    flex-shrink: 0;
   }
 
   .input {
     width: 50%;
-    margin-right: 24px;
+    margin-right: 16px;
   }
 }
 </style>
