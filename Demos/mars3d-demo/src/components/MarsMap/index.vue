@@ -3,7 +3,8 @@
 </template>
 <script setup lang="ts">
 import { onMounted, computed, onBeforeUnmount, getCurrentInstance } from 'vue'
-import options from './config'
+import myOptions from './config'
+import myWidgetOptions from './widget'
 
 const instance = getCurrentInstance()
 const mars3d = instance?.appContext.config.globalProperties.mars3d
@@ -12,8 +13,9 @@ const mars3d = instance?.appContext.config.globalProperties.mars3d
 const props = withDefaults(
   defineProps<{
     url: string
+    widgetUrl: string
     mapKey?: string
-    options: object
+    options?: object
   }>(),
   {
     url: '',
@@ -30,29 +32,42 @@ const withKeyId = computed(() => `mars3d-container-${props.mapKey}`)
 
 // onload事件将在地图渲染后触发
 const emit = defineEmits(['onload'])
+// 初始化外部静态widget功能（兼容使用传统模式开发的一些widget）
+const initStaticWidget = (map: any, widget: any) => {
+  console.log('initStaticWidget', mars3d)
+  mars3d.widget.init(map, widget) // widgets目录相对于当前html页面的相对路径
+  // mars3d.widget.init(map, widget, '../') // widgets目录相对于当前html页面的相对路径
+}
 const initMars3d = (option: object) => {
-  mapviewer = new mars3d.Map(withKeyId.value, option)
-  emit('onload', mapviewer)
+  return new mars3d.Map(withKeyId.value, option)
 }
 
 const useConfigJson = false
-onMounted(() => {
-  // 获取配置
-  if (useConfigJson) {
-    mars3d.Resource.fetchJson({ url: props.url }).then((data: any) => {
-      initMars3d({
-        // 合并配置项
-        ...props.options,
-        ...data.map3d
-      })
-    })
-  } else {
-    initMars3d(options)
+const useWidgetJson = false
+onMounted(async () => {
+  const configData = useConfigJson
+    ? await mars3d.Resource.fetchJson({ url: props.url }).map3d
+    : myOptions
+  const widgetData =
+    useWidgetJson && props.widgetUrl
+      ? await mars3d.Resource.fetchJson({ url: props.widgetUrl })
+      : myWidgetOptions
+  console.log('config data:', configData)
+  console.log('widget data:', widgetData)
+  mapviewer = initMars3d({
+    // 合并配置项
+    ...props.options,
+    ...configData
+  })
+  if (mapviewer && widgetData) {
+    initStaticWidget(mapviewer, widgetData)
   }
+  emit('onload', mapviewer)
 })
 
 // 组件卸载之前销毁mars3d实例
 onBeforeUnmount(() => {
+  mars3d?.widget?.destroy()
   mapviewer?.destroy()
 })
 </script>

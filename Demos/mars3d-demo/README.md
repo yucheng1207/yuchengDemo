@@ -74,3 +74,31 @@ const Cesium = instance?.appContext.config.globalProperties.Cesium;
 var mapOptions = {} //支持的参数请看API文档：http://mars3d.cn/api/Map.html
 var map = new mars3d.Map('mars3dContainer', mapOptions)
 ```
+
+
+## 集成 mars3d-widget
+1. 引入`mars3d-widget`依赖
+```javascript
+import 'mars3d-widget'
+```
+2. 由于`mars3d-widget`中有使用到`jquery`和`layer`库，所以需要在`index.html`的head中引入
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    ...
+    <!--引入jquery mars3d-widget需要 -->
+    <script type="text/javascript" src="/lib/jquery/jquery-2.1.4.min.js"></script>
+
+    <!--引入layer mars3d-widget需要 -->
+    <link href="/lib/layer/theme/default/layer.css" rel="stylesheet" />
+    <link href="/lib/layer/theme/retina/retina.css" rel="stylesheet" />
+    <link href="/lib/layer/theme/mars/layer.css" rel="stylesheet" />
+    <script type="text/javascript" src="/lib/layer/layer.js"></script>
+    ...
+  </head>
+  ...
+</html>
+
+```
+3. 使用`mars3d.widget.init`初始化widget， 参考：http://mars3d.cn/dev/guide/project/widget.html#_1-widget%E6%A8%A1%E5%9D%97%E5%8C%96%E6%9E%B6%E6%9E%84%E8%AF%B4%E6%98%8E

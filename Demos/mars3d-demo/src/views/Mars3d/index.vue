@@ -1,5 +1,5 @@
 <template>
-  <MarsMap :url="configUrl" map-key="test" @onload="marsOnload" />
+  <MarsMap :url="configUrl" :widgetUrl="widgetUrl" map-key="test" @onload="marsOnload" />
   <div class="control_bar">
     <div class="row">
       <span class="title">Tileset链接：</span>
@@ -19,6 +19,8 @@
       <el-button @click="measurePoint">坐标测量</el-button>
       <div style="width: 60px" />
       <el-button @click="removeAll">清除</el-button>
+      <div style="width: 60px" />
+      <el-button @click="testWidget">测试widget</el-button>
     </div>
     <div class="row">
       <el-button @click="measureSurfaceLength">贴地距离</el-button>
@@ -34,6 +36,7 @@ import { ref, getCurrentInstance } from 'vue'
 import MarsMap from '@/components/MarsMap/index.vue'
 
 const configUrl = ref('config/config.json')
+const widgetUrl = ref('config/widget.json')
 
 const instance = getCurrentInstance()
 const mars3d = instance?.appContext.config.globalProperties.mars3d
@@ -535,6 +538,14 @@ function measureAngle() {
 // 坐标测量
 function measurePoint() {
   measure.point()
+}
+
+function testWidget() {
+  // 常用，直接使用uri
+  mars3d.widget.activate('widgets/_example/widget.js')
+
+  // // 支持所有可配参数和自定义参数，在widget.js内部通过this.config可获取传入的参数
+  // mars3d.widget.activate({ name: '书签', uri: 'widgets/bookmark/widget.js ' })
 }
 
 const marsOnload = (map: any) => {
