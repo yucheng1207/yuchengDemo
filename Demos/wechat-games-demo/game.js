@@ -11,4 +11,5 @@
  * copy from https://github.com/finscn/weapp-adapter
  */
 import '/adapter/index.js'
-
+import Main from './three-js-demo/js/main'
+new Main()
