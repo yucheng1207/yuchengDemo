@@ -1,0 +1,3 @@
+rm -rf Demos/*/node_modules
+rm -rf Demos/*/build
+rm -rf Demos/*/dist

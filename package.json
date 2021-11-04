@@ -1,22 +1,23 @@
 {
-  "name": "yuchengdemo",
-  "version": "1.0.0",
-  "description": "主要用于学习或调研一些前端技术",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/yucheng1207/yuchengDemo.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/yucheng1207/yuchengDemo/issues"
-  },
-  "homepage": "https://github.com/yucheng1207/yuchengDemo#readme",
-  "devDependencies": {
-    "prettier": "^2.3.0"
-  }
+    "name": "yuchengdemo",
+    "version": "1.0.0",
+    "description": "主要用于学习或调研一些前端技术",
+    "main": "index.js",
+    "scripts": {
+        "clean": "./scripts/clean_demos",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/yucheng1207/yuchengDemo.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/yucheng1207/yuchengDemo/issues"
+    },
+    "homepage": "https://github.com/yucheng1207/yuchengDemo#readme",
+    "devDependencies": {
+        "prettier": "^2.3.0"
+    }
 }
