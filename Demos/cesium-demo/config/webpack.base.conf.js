@@ -5,11 +5,13 @@
 const Dotenv = require('dotenv-webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const HtmlWebpackTagsPlugin = require('html-webpack-tags-plugin');
 const WriteFilePlugin = require('write-file-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const tsImportPluginFactory = require('ts-import-plugin');
 const InterpolateHtmlPlugin = require('interpolate-html-plugin');
 const AntdDayjsWebpackPlugin = require('antd-dayjs-webpack-plugin');
+const webpack = require('webpack');
 const paths = require('./paths');
 
 const DEV = process.env.NODE_ENV === 'development';
@@ -50,7 +52,9 @@ module.exports = {
     // Enable sourcemaps for debugging webpack's output.
     devtool: DEV ? 'inline-eval-cheap-source-map' : 'source-map',
 
-    externals: {},
+    externals: {
+        cesium: 'Cesium',
+    },
     optimization: {
         splitChunks: {
             chunks: 'all',
@@ -70,7 +74,12 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.(png|gif|jpg|jpeg|xml|ico)$/,
+                test: /\.js$/,
+                exclude: /node_modules/,
+                use: 'babel-loader',
+            },
+            {
+                test: /\.(png|gif|jpg|jpeg|xml|ico|json)$/,
                 exclude: [/node_modules\/proj4/, /node_modules\/antd/],
                 loader: 'url-loader',
                 options: {
@@ -187,5 +196,62 @@ module.exports = {
         }),
         new WriteFilePlugin(),
         // new AntdDayjsWebpackPlugin(), // 将antd中的moment替换成dayjs：https://ant.design/docs/react/replace-moment-cn#antd-dayjs-webpack-plugin
+        // new CopyWebpackPlugin([
+        //     // 将cesium拷贝到打包输出目录
+        //     {
+        //         from: paths.resolveApp('node_modules/cesium/Build/Cesium'),
+        //         to: 'cesium',
+        //     },
+        // ]),
+        // new HtmlWebpackTagsPlugin({
+        //     // 从输出目录中获取cesium（build/cesium）
+        //     append: false,
+        //     tags: ['cesium/Widgets/widgets.css', 'cesium/Cesium.js'],
+        // }),
+        // new webpack.DefinePlugin({
+        //     // cesium在输出目录中的路径
+        //     CESIUM_BASE_URL: JSON.stringify('/cesium'),
+        // }),
+
+        // new CopyWebpackPlugin([
+        //     {
+        //         from: paths.resolveApp(
+        //             'node_modules/cesium/Build/Cesium/Workers'
+        //         ),
+        //         to: 'Workers',
+        //     },
+        //     {
+        //         from: paths.resolveApp(
+        //             'node_modules/cesium/Build/Cesium/ThirdParty'
+        //         ),
+        //         to: 'ThirdParty',
+        //     },
+        //     {
+        //         from: paths.resolveApp(
+        //             'node_modules/cesium/Build/Cesium/Assets'
+        //         ),
+        //         to: 'Assets',
+        //     },
+        //     {
+        //         from: paths.resolveApp(
+        //             'node_modules/cesium/Build/Cesium/Widgets'
+        //         ),
+        //         to: 'Widgets',
+        //     },
+        // ]),
+        // new HtmlWebpackTagsPlugin({
+        //     append: false,
+        //     tags: ['Widgets/widgets.css'],
+        // }),
+        // new webpack.DefinePlugin({
+        //     CESIUM_BASE_URL: JSON.stringify('.'),
+        // }),
+
+        new HtmlWebpackTagsPlugin({
+            append: false,
+            scripts: ['static/Cesium/Cesium.js'],
+            links: ['static/Cesium/Widgets/widgets.css'],
+            publicPath: 'https://mesh-static.oss-cn-hangzhou.aliyuncs.com/',
+        }),
     ],
 };

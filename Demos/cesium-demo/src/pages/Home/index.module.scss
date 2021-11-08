@@ -1,0 +1,32 @@
+@import 'src/styles/common';
+
+.home {
+    @include flexContainer(column, flex-start, flex-start);
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+
+    .inputContainer {
+        z-index: 99;
+        width: calc(100% - 100px);
+        height: 32px;
+        margin: 8px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+
+        .title {
+            color: white;
+            font-weight: bold;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+
+        .input {
+        }
+
+        .button {
+            margin-left: 8px;
+        }
+    }
+}
