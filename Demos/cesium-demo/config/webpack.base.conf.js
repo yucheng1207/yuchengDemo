@@ -246,7 +246,19 @@ module.exports = {
         // new webpack.DefinePlugin({
         //     CESIUM_BASE_URL: JSON.stringify('.'),
         // }),
-
+        // 配置cesium指南针
+        new HtmlWebpackTagsPlugin({
+            append: false,
+            scripts: ['static/cesium-navigation/navigation.js'],
+            publicPath: 'https://mesh-static.oss-cn-hangzhou.aliyuncs.com/',
+        }),
+        // 配置天地图
+        new HtmlWebpackTagsPlugin({
+            append: false,
+            scripts: ['cdn/plugins/cesium/cesiumTdt.js'],
+            publicPath: 'https://api.tianditu.gov.cn/',
+        }),
+        // 配置cesium
         new HtmlWebpackTagsPlugin({
             append: false,
             scripts: ['static/Cesium/Cesium.js'],

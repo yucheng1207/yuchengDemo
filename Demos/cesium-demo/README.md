@@ -170,3 +170,35 @@ const HtmlWebpackTagsPlugin = require('html-webpack-tags-plugin');
 	]
 	...
 ```
+
+## 指南针
+
+1. 安装依赖[cesium-navigation](https://www.npmjs.com/package/cesium-navigation)
+
+```
+yarn add cesium-navigation
+```
+
+2. html 中引入`cesium-navigation`, 也可以使用`html-webpack-tags-plugin`在 webpack 配置
+
+```javascript
+// html
+ <script src="./node_modules/cesium-navigation/navigation.js"></script>
+
+// 或配置webpack.config
+...
+	new HtmlWebpackTagsPlugin({
+		append: false,
+		scripts: ["static/cesium-navigation/navigation.js"],
+		publicPath: "https://mesh-static.oss-cn-hangzhou.aliyuncs.com/",
+	}),
+...
+```
+
+3. 使用
+
+```
+Cesium.viewerCesiumNavigationMixin(viewer,{});
+```
+
+## 天地图
