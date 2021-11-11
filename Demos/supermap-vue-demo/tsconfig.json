@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    // "isolatedModules": true, // vite要求设置为true：https://cn.vitejs.dev/guide/features.html#typescript-compiler-options
+    "useDefineForClassFields": true, // vite要求设置为true：https://cn.vitejs.dev/guide/features.html#typescript-compiler-options
+    "module": "esnext",
+    "moduleResolution": "node",
+    "strict": true,
+    "jsx": "preserve",
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "lib": ["esnext", "dom"],
+    "types": ["vite/client"], // 类型定义补充: https://cn.vitejs.dev/guide/features.html#client-types
+    "baseUrl": "src",
+    "paths": {
+      "@/*": ["./*"]
+    },
+    "allowJs": true
+  },
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"]
+}
