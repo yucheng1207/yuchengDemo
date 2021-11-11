@@ -1,4 +1,5 @@
 <template>
+  <!-- 算量 -->
   <sm3d-viewer :scene-url="sceneUrl">
     <sm3d-measure></sm3d-measure>
   </sm3d-viewer>
