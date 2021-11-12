@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState, useEffect } from 'react';
-import { Viewer as CViewer, Cartesian3, Cesium3DTileset, ScreenSpaceEventType, Matrix4, HeadingPitchRange, Math as CMath, Rectangle } from "cesium";
+import { Viewer as CViewer, Cartesian3, Cesium3DTileset, ScreenSpaceEventType, Matrix4, HeadingPitchRange, Math as CMath, Rectangle, Cartographic } from "cesium";
 import { Entity, Cesium3DTileset as Resium3DTileset, CesiumComponentRef } from "resium";
 import { Input, Button } from 'antd';
 import styles from './index.module.scss'
@@ -21,6 +21,44 @@ export interface ICameraViewOption {
 
 const pointPosition = Cartesian3.fromDegrees(-74.0707383, 40.7117244, 100);
 const pointGraphics = { pixelSize: 10 };
+
+/**
+ * 获取高度
+ */
+const getHeight = async (scene: any, points: { lat: number; lng: number }[]) => {
+	const formatErrorTip =
+		'Get height failed, please enter a point in the correct format => getHeight(points: { lat: number, lng: number }[])'
+	if (!points || !Array.isArray(points)) {
+		throw new Error(formatErrorTip)
+	} else {
+		try {
+			const isVaildPoints = points.every((item) => item.lat && item.lng)
+			if (isVaildPoints) {
+				const cartographics = points.map((item) =>
+					Cartographic.fromDegrees(item.lng, item.lat)
+				)
+				console.log('Execution function sampleHeightMostDetailed', cartographics)
+				console.log(scene.sampleHeightMostDetailed)
+				const result = await scene.sampleHeightMostDetailed([
+					Cartographic.fromDegrees(120.6893039381743, 27.947847140746887)
+				])
+				const isVaildResult = result.every((item: any) => item.height !== undefined)
+				console.log('sampleHeightMostDetailed result', result)
+				return {
+					isAllVaild: isVaildResult,
+					points: result
+				}
+			}
+			else {
+				console.error(formatErrorTip, points)
+				throw formatErrorTip
+			}
+		} catch (error) {
+			console.error('Get height failed', error)
+			throw error
+		}
+	}
+}
 
 interface Props {
 
