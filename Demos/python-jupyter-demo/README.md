@@ -1,1 +1,1 @@
-使用 jupyter 执行代码
+下载`ANACONDA.NAVIGATOR`后 Launch`jupyter notebook`或`JupyterLab`来调试代码
