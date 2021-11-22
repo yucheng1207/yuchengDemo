@@ -16,6 +16,23 @@ const paths = require('./paths');
 
 const DEV = process.env.NODE_ENV === 'development';
 
+const cesiumPublicPath = getCesiumPublicPath(1.84);
+
+/**
+ * 获取cesium资源地址
+ * @param {*} version - supermap || kiwi || 官网版本号
+ * @returns cesium资源地址
+ */
+function getCesiumPublicPath(version) {
+    if (version === 'supermap') {
+        return 'https://www.supermapol.com/earth/vue-iEarth/examples/public/';
+    } else if (version === 'kiwi') {
+        return 'https://mesh-static.oss-cn-hangzhou.aliyuncs.com/static/';
+    } else {
+        return `https://cesium.com/downloads/cesiumjs/releases/${version}/Build`;
+    }
+}
+
 module.exports = {
     context: __dirname,
     entry: DEV
@@ -261,9 +278,9 @@ module.exports = {
         // 配置cesium
         new HtmlWebpackTagsPlugin({
             append: false,
-            scripts: ['static/Cesium/Cesium.js'],
-            links: ['static/Cesium/Widgets/widgets.css'],
-            publicPath: 'https://mesh-static.oss-cn-hangzhou.aliyuncs.com/',
+            scripts: ['Cesium/Cesium.js'],
+            links: ['Cesium/Widgets/widgets.css'],
+            publicPath: cesiumPublicPath,
         }),
     ],
 };

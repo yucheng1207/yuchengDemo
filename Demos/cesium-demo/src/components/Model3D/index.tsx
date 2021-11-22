@@ -1,10 +1,13 @@
 import React, { useCallback, useRef, useState, useEffect } from 'react';
+import * as Cesium from 'cesium'
 import { Viewer as CViewer, Cartesian3, Cesium3DTileset, ScreenSpaceEventType, Matrix4, HeadingPitchRange, Math as CMath, Rectangle, Cartographic } from "cesium";
 import { Entity, Cesium3DTileset as Resium3DTileset, CesiumComponentRef } from "resium";
 import { Input, Button } from 'antd';
 import styles from './index.module.scss'
 import RViewer from './RViewer';
 import { defaultGestures, HEIGHT_OFFSET } from './config';
+
+console.log('Cesium 版本为：', (Cesium as any).VERSION)
 
 export type IZoomModelFunction = (params: 'reset' | 'in' | 'out') => void;
 export interface ICameraViewOption {
@@ -21,6 +24,7 @@ export interface ICameraViewOption {
 
 const pointPosition = Cartesian3.fromDegrees(-74.0707383, 40.7117244, 100);
 const pointGraphics = { pixelSize: 10 };
+// const tilesUrl = 'http://data.mars3d.cn/3dtiles/qx-shequ/tileset.json'
 
 /**
  * 获取高度
@@ -60,6 +64,28 @@ const getHeight = async (scene: any, points: { lat: number; lng: number }[]) => 
 	}
 }
 
+/**
+ * 给window对象注册getHeight方法，后端使用无头浏览器调用该方法来获取点对应到模型的高度
+ * doc: https://www.yuque.com/kiwi/frontend/iev7vm
+ */
+const registerWindowFunction = (scene?: any) => {
+	if (scene) {
+		// eslint-disable-next-line no-underscore-dangle
+		const _window: any = window
+		console.log('register getHeight function...')
+		_window.getHeight = (points: { lat: number; lng: number }[]) => {
+			try {
+				getHeight(scene, points)
+			} catch (error) {
+				console.log(error)
+			}
+		}
+		console.log('register getHeight function success')
+	} else {
+		console.error('register getHeight function failed, scene does not exist')
+	}
+}
+
 interface Props {
 
 }
@@ -89,6 +115,7 @@ const Model3D: React.FunctionComponent<Props> = (props) => {
 		const viewer = ref.current?.cesiumElement;
 		tilesetRef.current = tileset
 		if (viewer) {
+			registerWindowFunction(viewer.scene)
 			// 设置鼠标操作
 			viewer.scene.screenSpaceCameraController.zoomEventTypes = defaultGestures.zoomEventTypes;
 			viewer.scene.screenSpaceCameraController.rotateEventTypes = defaultGestures.rotateEventTypes;
@@ -141,7 +168,7 @@ const Model3D: React.FunctionComponent<Props> = (props) => {
 	/**
 	 * 显示模型
 	 */
-	const [tilesetUrls, setTilesetUrls] = useState<string[]>(['http://data.mars3d.cn/3dtiles/qx-shequ/tileset.json'])
+	const [tilesetUrls, setTilesetUrls] = useState<string[]>([tilesUrl])
 	const renderModels = useCallback((viewer?: CViewer) => {
 		if (!tilesetUrls || tilesetUrls.length === 0) return null;
 		return tilesetUrls.map((json) => {
@@ -155,7 +182,7 @@ const Model3D: React.FunctionComponent<Props> = (props) => {
 	/**
 	 * 输入模型链接
 	 */
-	const [inputValue, setInputValue] = useState<string>('http://data.mars3d.cn/3dtiles/qx-shequ/tileset.json')
+	const [inputValue, setInputValue] = useState<string>(tilesUrl)
 	const onChange = useCallback<React.ChangeEventHandler<HTMLInputElement>>((e) => {
 		setInputValue(e.target.value)
 	}, [])
