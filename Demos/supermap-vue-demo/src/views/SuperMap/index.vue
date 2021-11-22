@@ -1,5 +1,5 @@
 <template>
-  <IServerTiles />
+  <Cesium3dTiles />
 </template>
 
 <script setup lang="ts">

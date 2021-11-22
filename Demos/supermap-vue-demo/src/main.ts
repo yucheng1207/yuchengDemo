@@ -8,6 +8,8 @@ import store, { key } from '@/store/index'
 import styleImport from '@/utils/style-import'
 // 加载全局样式
 import './styles/index.scss'
+const { Cesium } = window as any
+console.log('Cesium版本号：', Cesium.VERSION)
 
 const app = createApp(App)
 
