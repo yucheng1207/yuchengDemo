@@ -21,11 +21,13 @@
     "@supermap/iclient3d-vue-for-webgl": "^1.1.2",
     "axios": "^0.23.0",
     "element-plus": "^1.0.2-beta.36",
+    "jquery": "^3.6.0",
     "vue": "^3.0.4",
     "vue-router": "^4.0.11",
     "vuex": "^4.0.2"
   },
   "devDependencies": {
+    "@types/jquery": "^3.5.9",
     "@types/node": "^16.10.9",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",

@@ -1,70 +1,22 @@
 <template>
   <div id="cesiumContainer"></div>
+  <div id="wrapper"></div>
+  <div class="toolbar">
+    <el-button id="chooseViewshed3d" @click="start">绘制可视域</el-button>
+    <el-button id="clearViewshed3d" @click="clear">清除可视域</el-button>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted } from '@vue/runtime-core'
+import registerWindowFunction from '@/utils/window'
+import Viewshed3dManager from './Viewshed3dManager'
 
 // const tilesUrl =
 //   'https://beta.cesium.com/api/assets/1458?access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIxYmJiNTAxOC1lOTg5LTQzN2EtODg1OC0zMWJjM2IxNGNlYmMiLCJpZCI6NDQsImFzc2V0cyI6WzE0NThdLCJpYXQiOjE0OTkyNjM4MjB9.1WKijRa-ILkmG6utrhDWX6rDgasjD7dZv-G5ZyCmkKg'
 const tilesUrl = 'http://data.mars3d.cn/3dtiles/qx-shequ/tileset.json'
 
 const { Cesium } = window as any
-
-const getHeight = (scene: any, points: { lat: number; lng: number }[]) => {
-  const formatErrorTip =
-    'Get height failed, please enter a point in the correct format => getHeight(points: { lat: number, lng: number }[])'
-  if (!points || !Array.isArray(points)) {
-    throw new Error(formatErrorTip)
-  } else {
-    try {
-      const isVaildPoints = points.every((item) => item.lat && item.lng)
-      if (isVaildPoints) {
-        const cartographics = points.map((item) =>
-          Cesium.Cartographic.fromDegrees(item.lng, item.lat)
-        )
-        console.log('Execution function sampleHeightMostDetailed', cartographics)
-        const promise = scene.sampleHeightMostDetailed(cartographics)
-        promise.then((result: any) => {
-          const isVaildResult = result.every((item: any) => item.height !== undefined)
-          console.log('sampleHeightMostDetailed result', result)
-          return {
-            isAllVaild: isVaildResult,
-            points: result
-          }
-        })
-      } else {
-        console.error(formatErrorTip, points)
-        throw formatErrorTip
-      }
-    } catch (error) {
-      console.error('Get height failed', error)
-      throw error
-    }
-  }
-}
-
-/**
- * 给window对象注册getHeight方法，后端使用无头浏览器调用该方法来获取点对应到模型的高度
- * doc: https://www.yuque.com/kiwi/frontend/iev7vm
- */
-const registerWindowFunction = (scene?: any) => {
-  if (scene) {
-    // eslint-disable-next-line no-underscore-dangle
-    const _window: any = window
-    console.log('register getHeight function...')
-    _window.getHeight = (points: { lat: number; lng: number }[]) => {
-      try {
-        getHeight(scene, points)
-      } catch (error) {
-        console.log(error)
-      }
-    }
-    console.log('register getHeight function success')
-  } else {
-    console.error('register getHeight function failed, scene does not exist')
-  }
-}
 
 const onload = () => {
   if (!Cesium) {
@@ -84,6 +36,7 @@ const onload = () => {
   tileset.readyPromise
     .then(() => {
       registerWindowFunction(viewer.scene)
+      initViewshed3d(viewer)
 
       const { boundingSphere } = tileset
       viewer.camera.viewBoundingSphere(
@@ -97,6 +50,18 @@ const onload = () => {
     })
 }
 
+const initViewshed3d = (viewer: any) => {
+  Viewshed3dManager.getInstance().init(viewer)
+}
+
+const start = () => {
+  Viewshed3dManager.getInstance().start()
+}
+
+const clear = () => {
+  Viewshed3dManager.getInstance().clear()
+}
+
 onMounted(() => {
   onload()
 })
@@ -105,7 +70,16 @@ onMounted(() => {
 <style scoped lang="scss">
 button {
   cursor: pointer;
-  font-size: 20px;
+  font-size: 14px;
   padding: 5px;
+}
+
+.toolbar {
+  display: flex;
+  flex-direction: row;
+  position: absolute;
+  top: 0;
+  padding: 8px;
+  z-index: 1000;
 }
 </style>

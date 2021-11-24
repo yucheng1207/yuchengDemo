@@ -1,7 +1,11 @@
 <template>
-  <!-- 算量 -->
   <sm3d-viewer :scene-url="sceneUrl">
-    <sm3d-measure></sm3d-measure>
+    <!-- 算量 -->
+    <!-- <sm3d-measure></sm3d-measure> -->
+    <!-- 可视域分析 -->
+    <!-- <sm3d-viewshed></sm3d-viewshed> -->
+    <!-- 剖面分析 -->
+    <sm3d-profile></sm3d-profile>
   </sm3d-viewer>
 </template>
 

@@ -29,16 +29,15 @@ module.exports = {
     'vue/no-multiple-template-root': 'off',
     'no-plusplus': 'off',
     'no-console': 'off',
-    'no-param-reassign': [
-      'error',
-      {
-        props: true,
-        ignorePropertyModificationsFor: ['state', 'config']
-      }
-    ],
     'no-shadow': 'off',
     'no-unused-vars': 'off',
     'no-use-before-define': 'off',
-    'symbol-description': 'off'
+    'symbol-description': 'off',
+    'import/prefer-default-export': 'off',
+    camelcase: 'off',
+    'new-cap': 'off',
+    'no-param-reassign': 'off',
+    'no-underscore-dangle': 'off',
+    'no-alert': 'off'
   }
 }
