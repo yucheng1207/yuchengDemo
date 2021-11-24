@@ -363,6 +363,7 @@ onMounted(() => {
 
 <style scoped lang="scss">
 @import url('../../styles/webgl/style.css');
+@import url('../../styles/webgl/pretty.css');
 
 button {
   cursor: pointer;

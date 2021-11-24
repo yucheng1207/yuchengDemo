@@ -11,6 +11,7 @@ import IClient3dVueTest from '@/components/IClient3dVueTest/index.vue' // @super
 
 // 官方示例测试: http://support.supermap.com.cn:8090/webgl/examples/webgl/examples.html#layer
 import Viewshed3dDemo from '@/components/Viewshed3dDemo/index.vue' // 可视域分析
+import ProfileDemo from '@/components/ProfileDemo/index.vue'
 </script>
 
 <style scoped lang="scss">
