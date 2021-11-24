@@ -8,10 +8,12 @@
     width="0"
   ></canvas>
   <div class="toolbar">
-    <el-button id="chooseViewshed3d" @click="startViewshed3d">绘制可视域</el-button>
-    <el-button id="clearViewshed3d" @click="clearViewshed3d">清除可视域</el-button>
-    <el-button id="chooseViewshed3d" @click="startProfile">开始剖面分析</el-button>
-    <el-button id="clearViewshed3d" @click="clearProfile">清除剖面分析</el-button>
+    <el-button @click="startViewshed3d">绘制可视域</el-button>
+    <el-button @click="clearViewshed3d">清除可视域</el-button>
+    <el-button @click="startProfile">开始剖面分析</el-button>
+    <el-button @click="clearProfile">清除剖面分析</el-button>
+    <el-button @click="sunlight">日照分析</el-button>
+    <el-button @click="clearSunlight">清除日照分析</el-button>
   </div>
 </template>
 
@@ -21,6 +23,7 @@ import registerWindowFunction from '@/utils/window'
 import Viewshed3dManager from './Viewshed3dManager'
 import ProfileManager from './ProfileManager'
 import { URL_CONFIG } from '../../static/urlConfig'
+import ShadowQueryManager from './ShadowQueryManager'
 
 // const tilesUrl =
 //   'https://beta.cesium.com/api/assets/1458?access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIxYmJiNTAxOC1lOTg5LTQzN2EtODg1OC0zMWJjM2IxNGNlYmMiLCJpZCI6NDQsImFzc2V0cyI6WzE0NThdLCJpYXQiOjE0OTkyNjM4MjB9.1WKijRa-ILkmG6utrhDWX6rDgasjD7dZv-G5ZyCmkKg'
@@ -29,11 +32,12 @@ const tilesUrl = 'http://data.mars3d.cn/3dtiles/qx-shequ/tileset.json'
 const { Cesium } = window as any
 
 const onload = async () => {
-  const viewer = await createCesium3dTileset('cesiumContainer')
-  // const viewer = await createBingMap('cesiumContainer')
-  registerWindowFunction(viewer.scene)
-  initViewshed3d(viewer)
-  initProfile(viewer)
+  // const { viewer } = await createCesium3dTileset('cesiumContainer')
+  const { viewer, layers } = await createBingMap('cesiumContainer')
+  // registerWindowFunction(viewer.scene)
+  // initViewshed3d(viewer)
+  // initProfile(viewer)
+  initShadowQuery(viewer, layers)
 }
 
 const createCesium3dTileset = (id: string): Promise<any> => {
@@ -59,7 +63,7 @@ const createCesium3dTileset = (id: string): Promise<any> => {
           new Cesium.HeadingPitchRange(0.0, -0.5, boundingSphere.radius)
         )
         viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY)
-        resolve(viewer)
+        resolve({ viewer })
       })
       .otherwise((error: any) => {
         reject(error)
@@ -72,7 +76,7 @@ const createBingMap = (id: string): Promise<any> => {
     if (!Cesium) {
       reject(new Error('can not find cesium'))
     }
-    const viewer = new Cesium.Viewer(id)
+    const viewer = new Cesium.Viewer(id, { shadows: true })
     viewer.imageryLayers.addImageryProvider(
       new Cesium.BingMapsImageryProvider({
         url: 'https://dev.virtualearth.net',
@@ -81,11 +85,11 @@ const createBingMap = (id: string): Promise<any> => {
       })
     )
     const { scene } = viewer
-    scene.shadowMap.darkness = 1.275 // 设置第二重烘焙纹理的效果（明暗程度）
+    scene.shadowMap.darkness = 0.3 // 1.275 // 设置第二重烘焙纹理的效果（明暗程度）
     scene.skyAtmosphere.brightnessShift = 0.4 // 修改大气的亮度
     scene.debugShowFramesPerSecond = true
     scene.hdrEnabled = false
-    scene.sun.show = false
+    scene.sun.show = true // false
     // 01设置环境光的强度-新处理CBD场景
     scene.lightSource.ambientLightColor = new Cesium.Color(0.65, 0.65, 0.65, 1)
     // 添加光源
@@ -124,24 +128,34 @@ const createBingMap = (id: string): Promise<any> => {
       lakePromise,
       treePromise,
       roadPromise,
-      bridgePromise
+      bridgePromise,
+      ground2Promise
     ]
     Cesium.when.all(
       promiseSet,
-      (layer: any) => {
+      (layers: any) => {
+        // 图层加载完成,设置相机位置
+        // scene.camera.setView({
+        //   destination: Cesium.Cartesian3.fromDegrees(116.4473, 39.9011, 127),
+        //   orientation: {
+        //     heading: 0.2732,
+        //     pitch: -0.1583,
+        //     roll: 0
+        //   }
+        // })
         scene.camera.setView({
-          // 图层加载完成,设置相机位置
-          destination: Cesium.Cartesian3.fromDegrees(116.4473, 39.9011, 127),
+          destination: Cesium.Cartesian3.fromDegrees(116.4491, 39.9011, 180),
           orientation: {
-            heading: 0.2732,
-            pitch: -0.1583,
+            heading: 0.0912,
+            pitch: -0.3177,
             roll: 0
           }
         })
-        for (let i = 0; i < layer.length; i++) {
-          layer[i].selectEnabled = false
-        }
-        resolve(viewer)
+        // for (let i = 0; i < layers.length; i++) {
+        //   layers[i].selectEnabled = false
+        //   layers[i].shadowType = 2
+        // }
+        resolve({ viewer, layers })
       },
       (e: any) => {
         if (widget._showRenderLoopErrors) {
@@ -152,6 +166,18 @@ const createBingMap = (id: string): Promise<any> => {
       }
     )
   })
+}
+
+const initShadowQuery = (viewer: any, layers?: any) => {
+  ShadowQueryManager.getInstance().init(viewer, layers)
+}
+
+const clearSunlight = () => {
+  ShadowQueryManager.getInstance().clear()
+}
+
+const sunlight = () => {
+  ShadowQueryManager.getInstance().sunlight()
 }
 
 const initProfile = (viewer: any) => {
