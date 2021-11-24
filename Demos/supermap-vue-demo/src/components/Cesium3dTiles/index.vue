@@ -14,6 +14,8 @@
     <el-button @click="clearProfile">清除剖面分析</el-button>
     <el-button @click="sunlight">日照分析</el-button>
     <el-button @click="clearSunlight">清除日照分析</el-button>
+    <el-button @click="startSlope">坡度分析</el-button>
+    <el-button @click="clearSlope">清除坡度分析</el-button>
   </div>
 </template>
 
@@ -24,6 +26,7 @@ import Viewshed3dManager from './Viewshed3dManager'
 import ProfileManager from './ProfileManager'
 import { URL_CONFIG } from '../../static/urlConfig'
 import ShadowQueryManager from './ShadowQueryManager'
+import TerrainSlopeAnalysisManager from './TerrainSlopeAnalysisManager'
 
 // const tilesUrl =
 //   'https://beta.cesium.com/api/assets/1458?access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIxYmJiNTAxOC1lOTg5LTQzN2EtODg1OC0zMWJjM2IxNGNlYmMiLCJpZCI6NDQsImFzc2V0cyI6WzE0NThdLCJpYXQiOjE0OTkyNjM4MjB9.1WKijRa-ILkmG6utrhDWX6rDgasjD7dZv-G5ZyCmkKg'
@@ -33,11 +36,13 @@ const { Cesium } = window as any
 
 const onload = async () => {
   // const { viewer } = await createCesium3dTileset('cesiumContainer')
-  const { viewer, layers } = await createBingMap('cesiumContainer')
+  // const { viewer, layers } = await createBingMap('cesiumContainer')
+  const { viewer } = await createPrdTerrain('cesiumContainer')
   // registerWindowFunction(viewer.scene)
   // initViewshed3d(viewer)
   // initProfile(viewer)
-  initShadowQuery(viewer, layers)
+  // initShadowQuery(viewer, layers)
+  initSlopeAnalysis(viewer)
 }
 
 const createCesium3dTileset = (id: string): Promise<any> => {
@@ -68,6 +73,40 @@ const createCesium3dTileset = (id: string): Promise<any> => {
       .otherwise((error: any) => {
         reject(error)
       })
+  })
+}
+
+const createPrdTerrain = (id: string): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    if (!Cesium) {
+      reject(new Error('can not find cesium'))
+    }
+    const viewer = new Cesium.Viewer(id, {
+      terrainProvider: new Cesium.CesiumTerrainProvider({
+        url: URL_CONFIG.ZF_TERRAIN2,
+        isSct: true, // 地形服务源自SuperMap iServer发布时需设置isSct为true
+        requestVertexNormals: true
+      }),
+      timeline: true
+    })
+    // 添加SuperMap iServer发布的影像服务
+    viewer.imageryLayers.addImageryProvider(
+      new Cesium.SuperMapImageryProvider({
+        url: URL_CONFIG.ZF_IMG2
+      })
+    )
+    const { scene } = viewer
+    scene.globe.enableLighting = true
+    viewer.scene.globe.setPBRMaterialFromJSON('./data/pbr/地形/pipesUNI_terrain.json') // pbr
+    viewer.scene.camera.setView({
+      destination: Cesium.Cartesian3.fromDegrees(87.1, 27.8, 8000.0),
+      orientation: {
+        heading: 6.10547067016156,
+        pitch: -0.8475077031996778,
+        roll: 6.2831853016686185
+      }
+    })
+    resolve({ viewer })
   })
 }
 
@@ -135,14 +174,6 @@ const createBingMap = (id: string): Promise<any> => {
       promiseSet,
       (layers: any) => {
         // 图层加载完成,设置相机位置
-        // scene.camera.setView({
-        //   destination: Cesium.Cartesian3.fromDegrees(116.4473, 39.9011, 127),
-        //   orientation: {
-        //     heading: 0.2732,
-        //     pitch: -0.1583,
-        //     roll: 0
-        //   }
-        // })
         scene.camera.setView({
           destination: Cesium.Cartesian3.fromDegrees(116.4491, 39.9011, 180),
           orientation: {
@@ -166,6 +197,18 @@ const createBingMap = (id: string): Promise<any> => {
       }
     )
   })
+}
+
+const initSlopeAnalysis = (viewer: any) => {
+  TerrainSlopeAnalysisManager.getInstance().init(viewer)
+}
+
+const startSlope = () => {
+  TerrainSlopeAnalysisManager.getInstance().start()
+}
+
+const clearSlope = () => {
+  TerrainSlopeAnalysisManager.getInstance().clear()
 }
 
 const initShadowQuery = (viewer: any, layers?: any) => {
