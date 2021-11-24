@@ -41,7 +41,7 @@ const onload = async () => {
   try {
     const viewer = createViewer('cesiumContainer')
     await addCesium3dTileset(viewer, true)
-    addSuperMapImagery(viewer, true)
+    addSuperMapImagery(viewer, false)
     // const { layers } = await addBingMaps(viewer, false)
     setLight(viewer) // 设置光源以支持日照分析
     registerWindowFunction(viewer.scene)
@@ -58,8 +58,8 @@ const createViewer = (id: string): any => {
   if (!Cesium) {
     throw new Error('can not find cesium')
   }
-  // const obj = [6378137.0, 6378137.0, 6356752.3142451793]
-  // Cesium.Ellipsoid.WGS84 = Object.freeze(new Cesium.Ellipsoid(obj[0], obj[1], obj[2]))
+  const obj = [6378137.0, 6378137.0, 6356752.3142451793]
+  Cesium.Ellipsoid.WGS84 = Object.freeze(new Cesium.Ellipsoid(obj[0], obj[1], obj[2]))
   const viewer = new Cesium.Viewer(id)
   return viewer
 }
