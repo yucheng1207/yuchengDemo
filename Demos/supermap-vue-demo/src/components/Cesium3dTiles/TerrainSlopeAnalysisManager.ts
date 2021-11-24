@@ -107,7 +107,7 @@ export default class TerrainSlopeAnalysisManager {
       handlerPolygon.polygon.show = false
       handlerPolygon.polyline.show = true
       handlerPolygon.deactivate()
-      handlerPolygon.activate()
+      // handlerPolygon.activate()
     })
     // handlerPolygon.activate()
 

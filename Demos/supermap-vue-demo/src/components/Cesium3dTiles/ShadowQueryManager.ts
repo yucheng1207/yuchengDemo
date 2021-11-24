@@ -16,7 +16,7 @@ export default class ShadowQueryManager {
 
   private startTime = new Date('2020-12-17T10:00:00')
 
-  private endTime = new Date('2020-12-17T12:00:00')
+  private endTime = new Date('2020-12-17T16:00:00')
 
   private bottomHeight = 20 // 底部高程
 
@@ -46,14 +46,16 @@ export default class ShadowQueryManager {
 
     // 创建阴影查询对象
     this.shadowQuery = new Cesium.ShadowQueryPoints(scene)
-    layers[0].selectEnabled = false
-    layers[1].selectEnabled = false
-    // 设置图层的阴影模式
-    layers[0].shadowType = 2
-    layers[1].shadowType = 2
+    if (layers) {
+      layers[0].selectEnabled = false
+      layers[1].selectEnabled = false
+      // 设置图层的阴影模式
+      layers[0].shadowType = 2
+      layers[1].shadowType = 2
+    }
 
     this.shadowQuery.build()
-    this.setCurrentTime()
+    // this.setCurrentTime()
 
     this.handlerPolygon = new Cesium.DrawHandler(viewer, Cesium.DrawMode.Polygon, 0)
     this.handlerPolygon.activeEvt.addEventListener((isActive: boolean) => {
@@ -222,16 +224,18 @@ export default class ShadowQueryManager {
     })
   }
 
-  private setCurrentTime = () => {
+  private setCurrentTime = (time?: Date) => {
     // const endTime = new Date($('#selDate').val())
     // endTime.setHours(Number($('#endTime :selected').val()))
-    console.log('setCurrentTime', this.endTime)
-    this.viewer.clock.currentTime = Cesium.JulianDate.fromDate(this.endTime)
+    console.log('setCurrentTime', time || this.endTime)
+    this.viewer.clock.currentTime = Cesium.JulianDate.fromDate(time || this.endTime)
     this.viewer.clock.multiplier = 1
     this.viewer.clock.shouldAnimate = true
   }
 
-  public start = () => {}
+  public start = (time?: Date) => {
+    this.setCurrentTime(time)
+  }
 
   public clear = () => {
     this.handlerPolygon.deactivate()

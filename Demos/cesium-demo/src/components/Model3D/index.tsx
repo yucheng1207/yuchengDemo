@@ -24,7 +24,7 @@ export interface ICameraViewOption {
 
 const pointPosition = Cartesian3.fromDegrees(-74.0707383, 40.7117244, 100);
 const pointGraphics = { pixelSize: 10 };
-// const tilesUrl = 'http://data.mars3d.cn/3dtiles/qx-shequ/tileset.json'
+const tilesUrl = 'http://data.mars3d.cn/3dtiles/qx-shequ/tileset.json'
 
 /**
  * 获取高度
