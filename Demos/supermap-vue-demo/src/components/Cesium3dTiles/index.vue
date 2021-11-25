@@ -16,6 +16,8 @@
     <el-button @click="clearSunlight">清除日照分析</el-button>
     <el-button @click="startSlope">坡度分析</el-button>
     <el-button @click="clearSlope">清除坡度分析</el-button>
+    <el-button @click="startTerraincalCulation">挖填方分析</el-button>
+    <el-button @click="clearTerraincalCulation">清除挖填方分析</el-button>
   </div>
 </template>
 
@@ -28,6 +30,7 @@ import ProfileManager from './ProfileManager'
 import { URL_CONFIG } from '../../static/urlConfig'
 import ShadowQueryManager from './ShadowQueryManager'
 import TerrainSlopeAnalysisManager from './TerrainSlopeAnalysisManager'
+import TerraincalCulationManager from './TerraincalCulationManager'
 
 const route = useRoute()
 
@@ -40,8 +43,15 @@ const { Cesium } = window as any
 const onload = async () => {
   try {
     const viewer = createViewer('cesiumContainer')
-    await addCesium3dTileset(viewer, true)
+    await addCesium3dTileset(viewer, false)
     addSuperMapImagery(viewer, false)
+    await initTerraincalCulation(viewer)
+    // await initTerraincalCulation(viewer, {
+    //   sceneUrl: 'http://1.12.234.167:8090/iserver/services/3D-TestSuperMap/rest/realspace',
+    //   queryUrl:
+    //     'http://1.12.234.167:8090/iserver/services/spatialAnalysis-TestSuperMap/restjsr/spatialanalyst/datasets/DatasetDSM%40DataSource/terraincalculation/cutfill.json?returnContent=true',
+    //   depth: 200
+    // })
     // const { layers } = await addBingMaps(viewer, false)
     setLight(viewer) // 设置光源以支持日照分析
     registerWindowFunction(viewer.scene)
@@ -208,6 +218,21 @@ const addBingMaps = (viewer: any, gotoView?: boolean): Promise<any> => {
       }
     )
   })
+}
+
+const initTerraincalCulation = async (
+  viewer: any,
+  opts?: { sceneUrl: string; queryUrl: string; depth: number }
+) => {
+  await TerraincalCulationManager.getInstance().init(viewer, opts)
+}
+
+const startTerraincalCulation = () => {
+  TerraincalCulationManager.getInstance().start()
+}
+
+const clearTerraincalCulation = (viewer: any) => {
+  TerraincalCulationManager.getInstance().clear()
 }
 
 const initSlopeAnalysis = (viewer: any) => {
