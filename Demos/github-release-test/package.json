@@ -1,0 +1,37 @@
+{
+    "name": "github-release-test",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "appRelease": {
+        "draft": false,
+        "prerelease": true,
+        "release": false,
+        "appMinVersion": "2.4.0",
+        "appMaxVersion": "2.4.1",
+        "description": "test"
+    },
+    "scripts": {
+        "release": "node ./scripts/release",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "adm-zip": "^0.4.14",
+        "ali-oss": "^6.4.0",
+        "chalk": "^2.0.1",
+        "crypto": "^1.0.1",
+        "js-sha512": "^0.8.0",
+        "js-yaml": "^3.13.1",
+        "minimist": "^1.2.5",
+        "mkdirp": "^1.0.3",
+        "request": "^2.88.2",
+        "request-promise": "^4.2.6",
+        "rimraf": "^2.6.0",
+        "single-line-log": "^1.1.2"
+    },
+    "devDependencies": {
+        "@types/ali-oss": "^6.0.4"
+    }
+}
