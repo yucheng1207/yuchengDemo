@@ -1,0 +1,18 @@
+{
+    "exclude": ["node_modules", "./**/node_modules"],
+    "compilerOptions": {
+      "outDir": "./dist/",
+      "baseUrl": ".",
+      "module": "es2020",
+      "moduleResolution": "node",
+      "target": "es6",
+      "jsx": "react",
+      "strict": true,
+      "sourceMap": true,
+      "allowJs": true,
+      "allowSyntheticDefaultImports": true,
+      "paths": {
+        "app2/Button": ["./app2/src/Button"],
+      }
+    }
+  }
