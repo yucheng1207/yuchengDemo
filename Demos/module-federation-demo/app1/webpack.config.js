@@ -1,4 +1,5 @@
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const WebpackRemoteTypesPlugin = require("webpack-remote-types-plugin").default;
 const { ModuleFederationPlugin } = require("webpack").container;
 const path = require("path");
 
@@ -42,6 +43,13 @@ module.exports = {
     }),
     new HtmlWebpackPlugin({
       template: "./public/index.html",
+    }),
+    new WebpackRemoteTypesPlugin({
+      remotes: {
+        app2: `app2@http:${getRemoteEntryUrl(3002)}`,
+      },
+      outputDir: 'src/types',
+      remoteFileName: '[name]-ts.tgz' // default filename is [name]-dts.tgz where [name] is the remote name, for example, `app` with the above setup
     }),
   ],
 };

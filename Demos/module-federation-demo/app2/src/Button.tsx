@@ -1,10 +1,10 @@
 import React, { FC, ReactNode } from "react";
 
-interface Props
+export interface ButtonProps
 {
     text?: string | ReactNode
 }
 
-const Button: FC<Props> = (props) => <button>{props.text || 'App 2 Button'}</button>;
+export const Button: FC<ButtonProps> = (props) => <button>{props.text || 'App 2 Button'}</button>;
 
 export default Button;

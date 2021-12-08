@@ -1,3 +1,15 @@
 {
-    "extends": "../tsconfig.json"
+    "exclude": ["node_modules"],
+    "compilerOptions": {
+      "baseUrl": ".",
+      "module": "es2020",
+      "moduleResolution": "node",
+      "target": "es6",
+      "jsx": "react",
+      "strict": true,
+      "sourceMap": true,
+      "allowJs": true,
+      "allowSyntheticDefaultImports": true
+    },
+    "include": ["src"]
 }
