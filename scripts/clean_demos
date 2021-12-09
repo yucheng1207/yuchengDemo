@@ -1,3 +1,4 @@
+rm -rf node_modules
 rm -rf Demos/*/node_modules
 rm -rf Demos/*/*/node_modules
 rm -rf Demos/*/build

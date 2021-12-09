@@ -1,5 +1,24 @@
 {
     "name": "yuchengdemo",
+    "private": true,
+    "workspaces": {
+        "packages": [
+            "Demos/cesium-demo",
+            "Demos/egg-demo",
+            "Demos/express-demo",
+            "Demos/github-release-test",
+            "Demos/mars3d-demo",
+            "Demos/marzipano-demo",
+            "Demos/nextjs-demo",
+            "Demos/puppeteer-demo",
+            "Demos/react-hook-demo",
+            "Demos/supermap-vue-demo",
+            "Demos/three-js-demo",
+            "Demos/view-design-demo",
+            "Demos/vue3-demo",
+            "Demos/egg-demo"
+        ]
+    },
     "version": "1.0.0",
     "description": "主要用于学习或调研一些前端技术",
     "main": "index.js",
