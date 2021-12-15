@@ -1,0 +1,18 @@
+{
+  "name": "webpack-loader-demo",
+  "version": "1.0.0",
+  "description": "webpack loader demo",
+  "main": "src/index.js",
+  "scripts": {
+    "build": "rm -rf dist && webpack",
+    "debug": "node --inspect=5858 ./node_modules/.bin/webpack",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "copy-webpack-plugin": "^10.1.0",
+    "webpack": "^5.65.0",
+    "webpack-cli": "^4.9.1"
+  }
+}

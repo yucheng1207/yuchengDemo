@@ -15,8 +15,7 @@
             "Demos/supermap-vue-demo",
             "Demos/three-js-demo",
             "Demos/view-design-demo",
-            "Demos/vue3-demo",
-            "Demos/egg-demo"
+            "Demos/vue3-demo"
         ]
     },
     "version": "1.0.0",
