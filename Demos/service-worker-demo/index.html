@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+  <head>
+    <title>Service Worker Demo</title>
+  </head>
+  <body>
+    <div>hello</div>
+    <img src="./imgs/test.jpg" alt="demo image" />
+    <a href="./data.txt">Website</a>
+    <script src="./index.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        console.log('serviceWorker in navigator')
+        navigator.serviceWorker.getRegistrations()
+          .then(regs => {
+            console.log('getRegistrations', regs)
+            for (let reg of regs) {
+              console.log('reg.scope', reg.scope)
+              // 注销掉不是当前作用域的所有的 Service Worker
+              // if (reg.scope !== 'http://127.0.0.1:8000/') {
+              //   reg.unregister()
+              // }
+
+              // 为了防止作用域污染，将安装前注销所有已生效的 Service Worker
+              console.log('注销掉所有的 Service Worker')
+              reg.unregister()
+            }
+            // 注销掉污染 Service Worker 之后再重新注册自己作用域的 Service Worker
+            console.log('重新注册自己作用域的 Service Worker')
+            // navigator.serviceWorker.register('./sw.js?v=20190401235959')
+            navigator.serviceWorker.register('./sw.js')
+          })
+      } else {
+        console.warn('serviceWorker not found')
+      }
+    </script>
+  </body>
+</html>
