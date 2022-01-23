@@ -5,6 +5,10 @@
   "main": "index.js",
   "scripts": {
     "dev": "ws --spa index.html",
+    "dev:lifecycle": "ws --spa index-lifecycle-test.html",
+    "dev:message": "ws --spa index-message-test.html",
+    "dev:router": "ws --spa index-router-test.html",
+    "dev:cache": "ws --spa index-cache-test.html",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
