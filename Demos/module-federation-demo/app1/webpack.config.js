@@ -1,7 +1,7 @@
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const WebpackRemoteTypesPlugin = require("webpack-remote-types-plugin").default;
 const { ModuleFederationPlugin } = require("webpack").container;
 const path = require("path");
+const WebpackRemoteTypesPlugin = require("webpack-remote-types-plugin").default;
 
 module.exports = {
   entry: "./src/index",
@@ -38,8 +38,9 @@ module.exports = {
       name: "app1",
       remotes: {
         app2: `app2@${getRemoteEntryUrl(3002)}`,
+        // mesh: `mesh@${getRemoteEntryUrl(3000)}`
       },
-      shared: { react: { singleton: true }, "react-dom": { singleton: true } },
+      shared: ['react']
     }),
     new HtmlWebpackPlugin({
       template: "./public/index.html",

@@ -1,7 +1,8 @@
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const TarWebpackPlugin = require('tar-webpack-plugin').default;
 const { ModuleFederationPlugin } = require("webpack").container;
 const path = require("path");
+const TarWebpackPlugin = require('tar-webpack-plugin').default;
+const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 
 module.exports = {
   entry: "./src/index",
@@ -11,9 +12,9 @@ module.exports = {
     port: 3002,
     hot: false
   },
-  watchOptions: {
-		ignored: ['./dist/**', './node_modules/**'],
-	},
+  // watchOptions: {
+	// 	ignored: ['./dist/**', './node_modules/**'],
+	// },
   output: {
     publicPath: "auto",
   },
@@ -41,6 +42,55 @@ module.exports = {
           },
         ],
       },
+      {
+				test: /\.scss$/,
+				exclude: [/node_modules/],
+				oneOf: [
+					{
+						test: /\.module\.scss$/,
+						use: [
+							MiniCssExtractPlugin.loader,
+							{
+								loader: "css-loader",
+								options: {
+									modules: {
+										localIdentName:
+											"[path][name]__[local]--[hash:base64:5]",
+									},
+									sourceMap: true,
+								},
+							},
+							{
+								loader: "sass-loader",
+								options: {
+									sourceMap: true,
+								},
+							},
+						],
+					},
+					{
+						use: [
+							MiniCssExtractPlugin.loader,
+							{
+								loader: "css-loader",
+								options: {
+									sourceMap: true,
+								},
+							},
+							{
+								loader: "sass-loader",
+								options: {
+									sourceMap: true,
+								},
+							},
+						],
+					},
+				],
+			},
+      {
+				test: /\.css$/,
+				use: ["style-loader", "css-loader"],
+			},
       // {
       //   test: /bootstrap\.tsx$/,
       //   loader: "bundle-loader",
@@ -51,14 +101,24 @@ module.exports = {
     ],
   },
   plugins: [
+    new MiniCssExtractPlugin({
+			filename: "[name].css",
+			chunkFilename: "[id].css",
+		}),
     new ModuleFederationPlugin({
       name: "app2",
-      library: { type: "var", name: "app2" },
+      library: { type: "var", name: "app2" }, // 该名称要与消费者 remote 中的 name 保持一致
       filename: "remoteEntry.js",
       exposes: {
         "./Button": "./src/Button",
       },
-      shared: { react: { singleton: true }, "react-dom": { singleton: true } },
+      shared: {
+        react: {
+					singleton: true,
+					requiredVersion: false,
+					version: false,
+				},
+      },
     }),
     new HtmlWebpackPlugin({
       template: "./public/index.html",
@@ -68,7 +128,8 @@ module.exports = {
       gzip: true,
       cwd: path.resolve(process.cwd(), 'dist'),
       file: path.resolve(process.cwd(), 'dist', 'app2-ts.tgz'),
-      fileList: ['app2']
+      fileList: ['app2'],
+      delSource: true
     })
   ],
 };

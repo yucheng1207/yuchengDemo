@@ -1,15 +1,16 @@
 {
-    "exclude": ["node_modules"],
-    "compilerOptions": {
-      "baseUrl": ".",
-      "module": "es2020",
-      "moduleResolution": "node",
-      "target": "es6",
-      "jsx": "react",
-      "strict": true,
-      "sourceMap": true,
-      "allowJs": true,
-      "allowSyntheticDefaultImports": true
-    },
-    "include": ["src"]
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "module": "es2020",
+    "moduleResolution": "node",
+    "target": "es6",
+    "jsx": "react-jsx",
+    "strict": true,
+    "sourceMap": true,
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "plugins": [{ "name": "typescript-plugin-css-modules" }]
+  },
+  "include": ["src"]
 }
