@@ -15,7 +15,8 @@
             "Demos/supermap-vue-demo",
             "Demos/three-js-demo",
             "Demos/view-design-demo",
-            "Demos/vue3-demo"
+            "Demos/vue3-demo",
+            "Demos/weixin-js-sdk-test"
         ]
     },
     "version": "1.0.0",
