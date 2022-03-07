@@ -98,7 +98,7 @@ navigator.serviceWorker.addEventListener('message', event => {
 
 1. 初始化cache：在sw的 `install` 回调中初始化缓存路径，即将应用默认要缓存的路径通过 [cache api](https://developer.mozilla.org/zh-CN/docs/Web/API/Cache) 添加到缓存中，需要注意的是**不要缓存根目录，否则获取页面时拿到的一直都是缓存中的数据**
 
-    ```html
+    ```js
     const CACHE_NAME = 'my-site-cache-v1';
     const ROOT_URL = 'http://127.0.0.1:8000/';
     const urlsToCache = [
@@ -142,7 +142,7 @@ navigator.serviceWorker.addEventListener('message', event => {
 
 1. 当页面请求的是缓存中的数据时，返回缓存
 
-    ```html
+    ```js
     /**
      * 拦截请求，可以再这个回调中处理请求或添加新的缓存路径
      */
@@ -167,7 +167,7 @@ navigator.serviceWorker.addEventListener('message', event => {
 
     如果为请求未缓存，希望立即添加到缓存时，也可以在”fetch“回调中动态的添加缓存，但是要**注意不要缓存根目录，否则请求页面时拿到的一直都是缓存中的页面，应用就没办法更新了**
 
-    ```html
+    ```js
     /**
      * 拦截请求，可以再这个回调中处理请求或添加新的缓存路径
      */
