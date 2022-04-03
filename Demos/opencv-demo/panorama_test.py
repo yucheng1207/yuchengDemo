@@ -1,0 +1,147 @@
+#coding=utf-8
+import cv2
+import time
+import numpy as np
+import math
+
+
+import math
+import scipy.linalg as linalg
+import matplotlib as mpl
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.pyplot as plt
+
+from scipy.spatial.transform import Rotation as R
+
+
+#这里使用的Python 3
+def sift_kp(image):
+    gray_image = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+    sift = cv2.xfeatures2d.SIFT_create()
+    kp,des = sift.detectAndCompute(image,None)
+    kp_image = cv2.drawKeypoints(gray_image,kp,None)
+    return kp_image,kp,des
+
+def get_good_match(des1,des2):
+    bf = cv2.BFMatcher()
+    matches = bf.knnMatch(des1, des2, k=2)
+    good = []
+    for m, n in matches:
+        if m.distance < 0.75 * n.distance:
+            good.append(m)
+    return good
+
+def isRotationMatrix(R) :
+    Rt = np.transpose(R)
+    shouldBeIdentity = np.dot(Rt, R)
+    I = np.identity(3, dtype = R.dtype)
+    n = np.linalg.norm(I - shouldBeIdentity)
+    return n < 1e-6
+
+
+
+def siftImageAlignment(img1,img2, isfh=True):
+   _,kp1,des1 = sift_kp(img1)
+   _,kp2,des2 = sift_kp(img2)
+   goodMatch = get_good_match(des1,des2)
+   if len(goodMatch) > 4:
+        ptsA= np.float32([kp1[m.queryIdx].pt for m in goodMatch]).reshape(-1, 1, 2)
+        ptsB = np.float32([kp2[m.trainIdx].pt for m in goodMatch]).reshape(-1, 1, 2)
+        ransacReprojThreshold = 4
+
+        if isfh == True :
+
+            # 单应映射
+            H, status =cv2.findHomography(ptsA,ptsB,cv2.RANSAC,ransacReprojThreshold);
+            print("is rotation matrix ")
+            print( isRotationMatrix( H ) )
+
+            x = [179, 123, 1] # 全景图中心点
+            x1 = np.dot(H,x)
+            print( x1.tolist() )
+            print([x[i] - x1[i] for i in range(3)]) # 变换矩阵 三个轴位移的量
+
+            imgOut = cv2.warpPerspective(img2, H, (img1.shape[1],img1.shape[0]),flags=cv2.INTER_LINEAR + cv2.WARP_INVERSE_MAP)
+        else:
+
+            # 仿射映射
+            transformation_rigid_matrix, rigid_mask = cv2.estimateAffinePartial2D(ptsA, ptsB)
+
+            x = [1024, 512, 1] # 全景图中心点
+            x1 = np.dot(transformation_rigid_matrix,x)
+            print( x1 )
+
+            imgOut = cv2.warpAffine(img2, transformation_rigid_matrix , (img1.shape[1],img1.shape[0]))
+
+            # 获得 x1 的 x 坐标
+            newX = x1[0]
+            ts = time.time()
+            filename = '{:f}_cropped.jpg'.format(ts)
+
+            print( img1.shape )
+
+            if newX > 1024:
+                # 往右移动
+                rOffset = newX - 1024
+
+                top=0 #
+                right=img2.shape[1] - int(rOffset) # 位置
+                height=img2.shape[0]
+                width=img2.shape[1]
+                # 裁剪坐标为[y0:y1, x0:x1]
+                croped_image_1 = img2[top : (top + height) , right: (right + width)]
+                croped_image_2 = img2[0 : height , 0: right]
+
+                imgHor = np.hstack((croped_image_1, croped_image_2))
+
+                # cropped_image = img2[ int(img1.shape[0]):int(img1.shape[1] - rOffset), int(img1.shape[0]):int(img1.shape[1])]
+
+                # croped_image_offset = {"x":0, "y":0}
+                # imgOut[croped_image_offset["y"]:croped_image_offset["y"]+croped_image.shape[0],croped_image_offset["x"]:croped_image_offset["x"]+croped_image.shape[1]] = croped_image
+
+                cv2.imwrite(filename, imgHor)
+            else:
+                print("here")
+                lOffset = 1024 - newX
+                top=0 #
+                right=int(lOffset) # 位置
+                height=img1.shape[0]
+                width=img1.shape[1]
+                # 裁剪坐标为[y0:y1, x0:x1]
+                croped_image_1 = img1[0 : height , 0: right]
+                croped_image_2 = img1[top : (top + height) , right: ( width + right)]
+                imgHor = np.hstack((croped_image_2, croped_image_1))
+                cv2.imwrite(filename, imgHor)
+                # 往左移动
+
+
+        # r = R.from_quat([0, 0, np.sin(np.pi/4), np.cos(np.pi/4)])
+        # print( H.tolist() )
+
+        return imgOut #,H,status
+
+
+def main():
+    img1 = cv2.imread('/Users/apple/Downloads/DJI_0462Panorama_normal.jpg')
+    img2 = cv2.imread('/Users/apple/Downloads/DJI_0462Panorama_mix.jpg')
+
+    # result = siftImageAlignment(img2,img1,False)
+    # newresult = siftImageAlignment(img1,img2,False)
+    newresult = siftImageAlignment(img2,img1,False)
+    # newresult = siftImageAlignment(result, img1,False)
+
+
+    ts = time.time()
+    filename = '{:f}.jpg'.format(ts)
+    cv2.imwrite(filename, newresult)
+
+    '''
+    allImg = np.concatenate((img1,img2,result),axis=1)
+    cv2.namedWindow('Result',cv2.WINDOW_NORMAL)
+    cv2.imshow('Result',allImg)
+    cv2.waitKey(0)
+    '''
+
+if __name__ == "__main__":
+    main()
+    # calculate_new_center_point()
