@@ -1,0 +1,12 @@
+@import 'src/styles/common';
+
+.container {
+    @include flexContainer(column, center, center);
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+
+    button {
+        margin: 8px;
+    }
+}

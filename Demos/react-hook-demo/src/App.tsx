@@ -7,12 +7,13 @@ import HookTest2 from './components/HookTest2';
 import ImportTest from './components/ImportTest';
 import ReduxToolkitTest from './components/ReduxToolkitTest'
 import store from './store/index';
+import ReduxTest from './components/ReduxTest';
 
 function App() {
 	return (
 		<div className="App">
 			<ReduxProvider store={store}>
-				<HookTest2 />
+				<ReduxTest />
 			</ReduxProvider>
 		</div>
 	);
