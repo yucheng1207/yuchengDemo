@@ -8,12 +8,13 @@ import ImportTest from './components/ImportTest';
 import ReduxToolkitTest from './components/ReduxToolkitTest'
 import store from './store/index';
 import ReduxTest from './components/ReduxTest';
+import { EnumifyTest } from './components/EnumifyTest';
 
 function App() {
 	return (
 		<div className="App">
 			<ReduxProvider store={store}>
-				<ReduxTest />
+				<EnumifyTest />
 			</ReduxProvider>
 		</div>
 	);
