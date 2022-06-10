@@ -1,7 +1,7 @@
 import React, { Suspense, useRef, useCallback, useState, useEffect } from 'react';
 import('antd/lib/button/style/css')
 const AntDesignButton = React.lazy(() =>
-  import('antd/lib/button')
+  import(/* webpackChunkName: 'LazyImportAntDesign' */ 'antd/lib/button')
 );
 
 function renderAntDesignButton() {

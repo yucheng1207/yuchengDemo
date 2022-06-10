@@ -3,7 +3,7 @@ import DynamicImportAntDesign from './DynamicImportAntDesign';
 import NormalImportAntDesign from './NormalImportAntDesign';
 import LazyImportAntDesign from './LazyImportAntDesign';
 const NormalImportAntDesignLazy = React.lazy(() =>
-  import('./NormalImportAntDesign')
+  import(/* webpackChunkName: 'NormalImportAntDesign' */ './NormalImportAntDesign')
 );
 
 function renderNormalImportAntDesign() {

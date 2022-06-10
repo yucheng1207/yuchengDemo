@@ -1,6 +1,6 @@
 import React, { useRef, useCallback, useState, useEffect } from 'react';
 async function getButton() {
-    const result = await import('antd/lib/button')
+    const result = await import(/* webpackChunkName: 'ant design button' */ 'antd/lib/button')
     await import('antd/lib/button/style/css')
     return result.default
 }
