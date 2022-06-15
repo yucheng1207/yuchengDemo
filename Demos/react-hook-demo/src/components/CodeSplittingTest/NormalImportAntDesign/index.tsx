@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import { Input, Button } from 'antd';
 
 const NormalImportAntDesign: React.FunctionComponent<{title?: string}> = function (props) {
@@ -7,6 +7,10 @@ const NormalImportAntDesign: React.FunctionComponent<{title?: string}> = functio
 		console.log('e', e.target.value)
 		setText(e.target.value)
 	}, [])
+
+    useEffect(() => {
+        console.log('NormalImportAntDesign Loaded')
+      }, [])
 
 	return (
 		<div style={{border: 'solid 1px black', margin: '24px', padding: '8px'}}>

@@ -4,6 +4,7 @@ import logo from './logo.svg';
 import './App.css';
 import store from './store/index';
 import CodeSplittingTest from './components/CodeSplittingTest';
+import JqueryTest from './components/JqueryTest';
 
 enum TestName {
 	CodeSplittingTest,
@@ -12,15 +13,17 @@ enum TestName {
 	ImportTest,
 	ReduxTest,
 	ReduxToolkitTest,
-	RenderTest
+	RenderTest,
+	JqueryTest
 }
 
-const currentTestName = TestName.CodeSplittingTest
+const currentTestName: TestName = TestName.CodeSplittingTest
 
-async function getModule(type: TestName) {
+/**
+ * 这里都是要动态加载的组件
+ */
+async function getDynamicModule(type: TestName) {
 	switch(type) {
-		case TestName.CodeSplittingTest:
-			return (await import('./components/CodeSplittingTest')).default
 		case TestName.EnumifyTest:
 			return (await import('./components/EnumifyTest')).EnumifyTest
 		case TestName.HookTest2:
@@ -34,7 +37,7 @@ async function getModule(type: TestName) {
 		case TestName.RenderTest:
 			return (await import('./components/RenderTest')).default
 		default:
-			return (await import('./components/RenderTest')).default
+			return null
 	}
 }
 
@@ -48,7 +51,7 @@ function useTestComponent(type: TestName) {
     
     const getElement = useCallback(async () => {
         setLoading(true)
-		elementRef.current = await getModule(type)
+		elementRef.current = await getDynamicModule(type)
         setLoading(false)
     }, [type])
 
@@ -56,15 +59,26 @@ function useTestComponent(type: TestName) {
 }
 
 function App() {
-	const TestComponent = useTestComponent(currentTestName)
+	const DynamicComponent = useTestComponent(currentTestName)
+
+	const renderComponent = (type: TestName) => {
+		switch(type) {
+			case TestName.CodeSplittingTest:
+				return <CodeSplittingTest />
+			case TestName.JqueryTest:
+				return <JqueryTest />
+		}
+	}
 
 	return (
 		<div className="App">
 			<ReduxProvider store={store}>
 				{
-					// CodeSplittingTest 要测试代码分割，直接引入才能正常测试
-					currentTestName ? <CodeSplittingTest /> : TestComponent ? <TestComponent /> : null
-				}				
+					DynamicComponent ? <DynamicComponent /> : null
+				}
+				{
+					renderComponent(currentTestName)
+				}			
 			</ReduxProvider>
 		</div>
 	);
