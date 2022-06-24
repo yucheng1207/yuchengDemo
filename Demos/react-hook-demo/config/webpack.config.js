@@ -28,6 +28,7 @@ const typescriptFormatter = require('react-dev-utils/typescriptFormatter');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const CompressionPlugin = require('compression-webpack-plugin');
+const blockAnalyzerPlugin = require ('block-analysis-webpack-plugin');
 
 const postcssNormalize = require('postcss-normalize');
 
@@ -611,14 +612,15 @@ module.exports = function (webpackEnv) {
       // during a production build.
       // Otherwise React will be compiled in the very slow development mode.
       new webpack.DefinePlugin(env.stringified),
-      new BundleAnalyzerPlugin({ generateStatsFile: true }),
-      new CompressionPlugin({
+      isEnvProduction && new CompressionPlugin({
         filename: '[path][base].gz',
         algorithm: 'gzip',
         test: /\.js$|\.css$|\.html$/,
         threshold: 102400,
         minRatio: 0.8,
       }),
+      isEnvDevelopment && new BundleAnalyzerPlugin({ generateStatsFile: true }),
+      isEnvDevelopment && new blockAnalyzerPlugin(),
       // This is necessary to emit hot updates (CSS and Fast Refresh):
       isEnvDevelopment && new webpack.HotModuleReplacementPlugin(),
       // Experimental hot reloading for React .
