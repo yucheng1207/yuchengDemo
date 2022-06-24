@@ -14,10 +14,11 @@ enum TestName {
 	ReduxTest,
 	ReduxToolkitTest,
 	RenderTest,
-	JqueryTest
+	JqueryTest,
+	ReactBeautifulDndTest
 }
 
-const currentTestName: TestName = TestName.CodeSplittingTest
+const currentTestName: TestName = TestName.ReactBeautifulDndTest
 
 /**
  * 这里都是要动态加载的组件
@@ -36,6 +37,8 @@ async function getDynamicModule(type: TestName) {
 			return (await import('./components/ReduxToolkitTest')).default
 		case TestName.RenderTest:
 			return (await import('./components/RenderTest')).default
+		case TestName.ReactBeautifulDndTest:
+			return (await import(/* webpackChunkName: 'react-beautiful-dnd-test' */ './components/ReactBeautifulDndTest')).default
 		default:
 			return null
 	}
@@ -67,6 +70,8 @@ function App() {
 				return <CodeSplittingTest />
 			case TestName.JqueryTest:
 				return <JqueryTest />
+			default:
+				return null
 		}
 	}
 
