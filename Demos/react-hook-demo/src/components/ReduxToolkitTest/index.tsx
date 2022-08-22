@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, shallowEqual } from 'react-redux';
 import { createSelector } from 'reselect';
 import memoize from 'proxy-memoize';
 import styles from './index.module.scss';
@@ -18,6 +18,14 @@ const HelloWorld: React.FunctionComponent<Props> = (props) => {
 	const dispatch = useAppDispatch()
 	const loading = useSelector<AppState, ILoading>(state => state.application.loading)
 	const testData = useSelector<AppState, ITestData>(state => state.application.testData)
+	const arrayData = useSelector<AppState, any[]>(state => {
+		console.log('arrayData  state', state)
+		return state.application.testData.arr.map((item, index) => ({index}))
+	}, shallowEqual)
+
+	useEffect(() => {
+		console.log('arrayData', arrayData)
+	}, [arrayData])
 
 	useEffect(() => {
 		console.log('testData obj change')

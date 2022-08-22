@@ -15,10 +15,12 @@ enum TestName {
 	ReduxToolkitTest,
 	RenderTest,
 	JqueryTest,
-	ReactBeautifulDndTest
+	ReactBeautifulDndTest,
+	MomentTest,
+	ClassRenderTest,
 }
 
-const currentTestName: TestName = TestName.ReactBeautifulDndTest
+const currentTestName: TestName = TestName.ReduxToolkitTest
 
 /**
  * 这里都是要动态加载的组件
@@ -26,19 +28,23 @@ const currentTestName: TestName = TestName.ReactBeautifulDndTest
 async function getDynamicModule(type: TestName) {
 	switch(type) {
 		case TestName.EnumifyTest:
-			return (await import('./components/EnumifyTest')).EnumifyTest
+			return (await import(/* webpackChunkName: 'enumify-test' */ './components/EnumifyTest')).EnumifyTest
 		case TestName.HookTest2:
-			return (await import('./components/HookTest2')).default
+			return (await import(/* webpackChunkName: 'hook-test2' */ './components/HookTest2')).default
 		case TestName.ImportTest:
-			return (await import('./components/ImportTest')).default
+			return (await import(/* webpackChunkName: 'import-test' */ './components/ImportTest')).default
 		case TestName.ReduxTest:
-			return (await import('./components/ReduxTest')).default
+			return (await import(/* webpackChunkName: 'redux-test' */ './components/ReduxTest')).default
 		case TestName.ReduxToolkitTest:
-			return (await import('./components/ReduxToolkitTest')).default
+			return (await import(/* webpackChunkName: 'redux-toolkit-test' */ './components/ReduxToolkitTest')).default
 		case TestName.RenderTest:
-			return (await import('./components/RenderTest')).default
+			return (await import(/* webpackChunkName: 'render-test' */ './components/RenderTest')).default
 		case TestName.ReactBeautifulDndTest:
 			return (await import(/* webpackChunkName: 'react-beautiful-dnd-test' */ './components/ReactBeautifulDndTest')).default
+		case TestName.MomentTest:
+			return (await import(/* webpackChunkName: 'moment-test' */ './components/MomentTest')).default
+		case TestName.ClassRenderTest:
+			return (await import(/* webpackChunkName: 'class-render-test' */ './components/ClassRenderTest')).default
 		default:
 			return null
 	}

@@ -1,9 +1,11 @@
 import { Button, Input } from 'antd';
 import React, { useRef, useCallback, useMemo, useState, useEffect } from 'react';
+import { consoleTest, IHookTest2Props } from './type';
 
 
-const HookTest2: React.FunctionComponent<{}> = function (props) {
-	console.log('RenderTest')
+const HookTest2: React.FunctionComponent<IHookTest2Props> = function (props) {
+	console.log('RenderTest', props.text)
+	consoleTest()
 	const [textObject, setTestObject] = useState<{
 		content?: Array<string>
 		string: string

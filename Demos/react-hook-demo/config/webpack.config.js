@@ -30,7 +30,8 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPl
 const CompressionPlugin = require('compression-webpack-plugin');
 const blockAnalyzerPlugin = require('block-analysis-webpack-plugin');
 
-const analysisEnable = false
+const analysisEnable = true
+const analysisBlockEnable = false
 
 const postcssNormalize = require('postcss-normalize');
 
@@ -622,7 +623,7 @@ module.exports = function (webpackEnv) {
 				minRatio: 0.8,
 			}),
 			isEnvDevelopment && analysisEnable && new BundleAnalyzerPlugin({ generateStatsFile: true }),
-			isEnvDevelopment && analysisEnable && new blockAnalyzerPlugin(),
+			isEnvDevelopment && analysisBlockEnable && new blockAnalyzerPlugin(),
 			// This is necessary to emit hot updates (CSS and Fast Refresh):
 			isEnvDevelopment && new webpack.HotModuleReplacementPlugin(),
 			// Experimental hot reloading for React .
