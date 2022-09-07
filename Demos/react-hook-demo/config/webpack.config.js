@@ -30,7 +30,7 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPl
 const CompressionPlugin = require('compression-webpack-plugin');
 const blockAnalyzerPlugin = require('block-analysis-webpack-plugin');
 
-const analysisEnable = true
+const analysisEnable = false
 const analysisBlockEnable = false
 
 const postcssNormalize = require('postcss-normalize');

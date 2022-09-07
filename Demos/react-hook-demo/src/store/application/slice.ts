@@ -13,15 +13,32 @@ export interface ITestData {
 	},
 	arr: {
 		value: number,
-		isVaild: boolean,
+		isValid: boolean,
 	}[]
 }
+
+export interface IProject {
+	uuid: string,
+	name: string,
+	show: boolean,
+}
+
+// export interface IProjectDetail extends IProject {
+// 	info: string,
+// }
+
+// export interface IProjects {
+// 	[id: string]: IProjectDetail
+// }
 
 export interface IApplicationState {
 	isMobile: boolean,
 	isPad: boolean,
 	loading: ILoading,
-	testData: ITestData
+	testData: ITestData,
+	projectList: IProject[],
+	// projects: IProjectDetail,
+	projectWhiteList: string[],
 }
 
 const userAgent = window && window.navigator && window.navigator.userAgent
@@ -41,15 +58,34 @@ const initialState: IApplicationState = {
 		},
 		arr: [{
 			value: 1,
-			isVaild: true
+			isValid: true
 		}, {
 			value: 2,
-			isVaild: true
+			isValid: true
 		},{
 			value: 3,
-			isVaild: true
+			isValid: true
 		}]
-	}
+	},
+	projectList: [{
+		uuid: '1',
+		name: 'project1',
+		show: true
+	}, {
+		uuid: '2',
+		name: 'project2',
+		show: false
+	}, {
+		uuid: '3',
+		name: 'project3',
+		show: true
+	}, {
+		uuid: '4',
+		name: 'project4',
+		show: true
+	}],
+	// projects: null,
+	projectWhiteList: ['1', '2', '3']
 }
 
 /**
@@ -72,7 +108,7 @@ const slice = createSlice({
 		SetTestDataAction(state: IApplicationState, action: PayloadAction<ITestData>) {
 			state.testData = action.payload
 		},
-		SetTestDataArrAction(state: IApplicationState, action: PayloadAction<{value: number, isVaild: boolean}[]>) {
+		SetTestDataArrAction(state: IApplicationState, action: PayloadAction<{value: number, isValid: boolean}[]>) {
 			state.testData.arr = action.payload
 		},
 	}

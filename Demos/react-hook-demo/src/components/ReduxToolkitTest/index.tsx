@@ -268,11 +268,11 @@ const HelloWorld: React.FunctionComponent<Props> = (props) => {
 				...testData.obj,
 				// value1: testData?.obj?.value1 + 1
 			},
-			// arr: testData.arr.map(item => ({...item, isVaild: !item.isVaild}))
+			// arr: testData.arr.map(item => ({...item, isValid: !item.isValid}))
 		}))
 
 		// 改变 testData.arr
-		dispatch(SetTestDataArrAction(testData.arr.map(item => ({...item, isVaild: !item.isVaild }))))
+		dispatch(SetTestDataArrAction(testData.arr.map(item => ({...item, isValid: !item.isValid }))))
 	}, [dispatch, testData])
 
 

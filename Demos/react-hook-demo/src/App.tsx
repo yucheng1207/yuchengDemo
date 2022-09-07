@@ -13,6 +13,7 @@ enum TestName {
 	ImportTest,
 	ReduxTest,
 	ReduxToolkitTest,
+	ReselectTest,
 	RenderTest,
 	JqueryTest,
 	ReactBeautifulDndTest,
@@ -20,7 +21,7 @@ enum TestName {
 	ClassRenderTest,
 }
 
-const currentTestName: TestName = TestName.ReduxToolkitTest
+const currentTestName: TestName = TestName.ReselectTest
 
 /**
  * 这里都是要动态加载的组件
@@ -37,6 +38,8 @@ async function getDynamicModule(type: TestName) {
 			return (await import(/* webpackChunkName: 'redux-test' */ './components/ReduxTest')).default
 		case TestName.ReduxToolkitTest:
 			return (await import(/* webpackChunkName: 'redux-toolkit-test' */ './components/ReduxToolkitTest')).default
+		case TestName.ReselectTest:
+			return (await import(/* webpackChunkName 'reselect-test'  */ './components/ReselectTest')).default
 		case TestName.RenderTest:
 			return (await import(/* webpackChunkName: 'render-test' */ './components/RenderTest')).default
 		case TestName.ReactBeautifulDndTest:
