@@ -2,6 +2,34 @@ import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { Provider as ReduxProvider } from "react-redux";
 import './App.css';
 import store from './store/index';
+import * as Sentry from "@sentry/react";
+import { BrowserTracing } from "@sentry/tracing";
+import { HttpClient } from "@sentry/integrations";
+import {
+	HashRouter as Router,
+	Switch,
+	Route,
+	Link,
+	matchPath
+  } from "react-router-dom";
+import { createBrowserHistory, createHashHistory } from 'history';
+import SentryTest from './components/SentryTest';
+const SentryRoute = Sentry.withSentryRouting(Route);
+const history = createHashHistory()
+
+const routes = [{ path: '/dynamic_component' }, { path: '/sentry/test' }, { path: '/' }];
+
+Sentry.init({
+	dsn: "https://d696704727734f11bae30e7d03e0cc87@o288695.ingest.sentry.io/4504445188833280", // javascript-react: https://sentry.io/organizations/qizhi-7z/projects/javascript-react/?project=4504445188833280
+	integrations: [new BrowserTracing({
+		// tracePropagationTargets: ["localhost", "my-site-url.com", /^\//],
+		routingInstrumentation: Sentry.reactRouterV5Instrumentation(history, routes, matchPath)
+	}), new HttpClient() as any],  // new ReportingObserver()],
+	// Set tracesSampleRate to 1.0 to capture 100%
+	// of transactions for performance monitoring.
+	// We recommend adjusting this value in production
+	tracesSampleRate: 1.0,
+});
 
 enum TestName {
 	OnesDesignTest
@@ -40,26 +68,33 @@ function useTestComponent(type: TestName) {
 
 function App() {
 	const DynamicComponent = useTestComponent(currentTestName)
-
-	const renderComponent = (type: TestName) => {
-		switch (type) {
-			default:
-				return null
-		}
-	}
-
 	return (
 		<div className="App">
-			<ReduxProvider store={store}>
-				{
-					DynamicComponent ? <DynamicComponent /> : null
-				}
-				{
-					renderComponent(currentTestName)
-				}
-			</ReduxProvider>
+			<Sentry.ErrorBoundary>
+				<ReduxProvider store={store}>
+					<Router history={history}>
+						<Link to="/">Home </Link>
+						<Link to="/sentry/test">Sentry_Test </Link>
+						<Link to="/dynamic_component">Dynamic </Link>
+						<Switch>
+							<SentryRoute path="/sentry/test">
+								<SentryTest />
+							</SentryRoute>
+							<SentryRoute path="/dynamic_component">
+								{
+									DynamicComponent ? <DynamicComponent /> : null
+								}
+							</SentryRoute>
+							<SentryRoute path="/">
+								<div>home</div>
+								<img src="./logo192.png"></img>
+							</SentryRoute>
+						</Switch>
+					</Router>
+				</ReduxProvider>
+			</Sentry.ErrorBoundary>
 		</div>
 	);
 }
 
-export default App;
+export default Sentry.withProfiler(App, { name: "CustomAppName" });
