@@ -111,6 +111,7 @@
     ]
   },
   "devDependencies": {
+    "@sentry/webpack-plugin": "1.20.0",
     "babel-plugin-import": "^1.13.5",
     "block-analysis-webpack-plugin": "^1.0.5",
     "webpack-bundle-analyzer": "^4.5.0"

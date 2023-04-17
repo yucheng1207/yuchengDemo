@@ -16,11 +16,11 @@ import { createBrowserHistory, createHashHistory } from 'history';
 import SentryTest from './components/SentryTest';
 const SentryRoute = Sentry.withSentryRouting(Route);
 const history = createHashHistory()
-
 const routes = [{ path: '/dynamic_component' }, { path: '/sentry/test' }, { path: '/' }];
+console.log('log', process.env);
 
 Sentry.init({
-	dsn: "https://d696704727734f11bae30e7d03e0cc87@o288695.ingest.sentry.io/4504445188833280", // javascript-react: https://sentry.io/organizations/qizhi-7z/projects/javascript-react/?project=4504445188833280
+	dsn: "http://dcf8f6330dd5410d9885dcb1ee477b9c@10.17.0.156:9000/2", // javascript-react: https://sentry.io/organizations/qizhi-7z/projects/javascript-react/?project=4504445188833280
 	integrations: [new BrowserTracing({
 		// tracePropagationTargets: ["localhost", "my-site-url.com", /^\//],
 		routingInstrumentation: Sentry.reactRouterV5Instrumentation(history, routes, matchPath)
@@ -29,6 +29,7 @@ Sentry.init({
 	// of transactions for performance monitoring.
 	// We recommend adjusting this value in production
 	tracesSampleRate: 1.0,
+	release: `ones-demo@0.0.1`
 });
 
 enum TestName {

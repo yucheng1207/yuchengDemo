@@ -29,6 +29,7 @@ const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin'
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const CompressionPlugin = require('compression-webpack-plugin');
 const blockAnalyzerPlugin = require('block-analysis-webpack-plugin');
+const SentryWebpackPlugin = require("@sentry/webpack-plugin");
 
 const analysisEnable = false
 const analysisBlockEnable = false
@@ -39,6 +40,8 @@ const appPackageJson = require(paths.appPackageJson);
 
 // Source maps are resource heavy and can cause out of memory issue for large source files.
 const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== 'false';
+console.log('shouldUseSourceMap', shouldUseSourceMap);
+// console.log('process env', process.env);
 
 const webpackDevClientEntry = require.resolve(
 	'react-dev-utils/webpackHotDevClient'
@@ -756,6 +759,17 @@ module.exports = function (webpackEnv) {
 						}),
 					},
 				},
+			}),
+			isEnvProduction && new SentryWebpackPlugin({
+				org: "sentry",
+				project: "react-demo",
+				url: 'http://10.17.0.156:9000/',
+				include: "./build",
+				// Auth tokens can be obtained from https://sentry.io/settings/account/api/auth-tokens/
+				// and needs the `project:releases` and `org:read` scopes
+				authToken: "13f944702f9a4c729c0c849b5af063fe3b37b6ff3ee84eb5a0af3e50742f50da", //process.env.SENTRY_AUTH_TOKEN,
+				// Optionally uncomment the line below to override automatic release name detection
+				release: 'ones-demo@0.0.1', // process.env.RELEASE,
 			}),
 		].filter(Boolean),
 		// Some libraries import Node modules but don't use them in the browser.
