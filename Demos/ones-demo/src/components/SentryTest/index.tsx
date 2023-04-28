@@ -2,10 +2,13 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Button } from '@ones-design/core';
 import * as Sentry from "@sentry/react";
-import { SpanStatus, SpanStatusType } from '@sentry/tracing';
+import styles from './index.module.scss';
+import { generateTransactionInstance } from '../../monitor';
+import MemoryLeakComponent from './MemoryLeakComponent';
+import ErrorBoundaryTest, { ErrorItem } from './ErrorBoundaryTest';
+import IndexDBTest from './IndexDBTest';
 
-const transaction2 = Sentry.startTransaction({ name: "SentryTest 测试2" });
-// const span = transaction.startChild({ op: "functionX" });
+const normal_transaction = generateTransactionInstance('Sentry Test', 'Sentry Test')
 
 function mockRequest (params) {
     return new Promise((resolve, reject) => {
@@ -18,93 +21,57 @@ function mockRequest (params) {
     })
 }
 
-class ErrorBoundary extends React.Component<any, any> {
-    constructor(props) {
-      super(props);
-      this.state = { hasError: false };
-    }
-  
-    static getDerivedStateFromError(error) {
-      // 更新 state 使下一次渲染能够显示降级后的 UI
-      return { hasError: true };
-    }
-  
-    componentDidCatch(error, errorInfo) {
-      // 你同样可以将错误日志上报给服务器
-      console.log('zyc componentDidCatch', this.props.id, error, errorInfo)
-    }
-  
-    render() {
-      if (this.state.hasError) {
-        // 你可以自定义降级后的 UI 并渲染
-        return <h1>Something went wrong.{this.props.id}</h1>;
-      }
-  
-      return this.props.children; 
-    }
-  }
-
-class Item extends React.Component {
-    componentDidMount(): void {
-        
-    }
-    componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
-        console.log('componentDidCatch', error)
-    }
-    render(): React.ReactNode {
-        throw new Error('render error')
-        return <div>Item</div>
-    }
-}
-
 const SentryTest: React.FunctionComponent<{}> = function (props) {
 	const [loading, setLoading] = useState(false)
-    const [showItem, setShowItem] = useState(false)
-    const displayItem = useCallback(() => {
-        setShowItem(!showItem)
-    }, [showItem])
+  const [errorItemDisplay, setErrorItemDisplay] = useState(false)
+  const [subErrorItemDisplay, setSubErrorItemDisplay] = useState(false)
+  const displayErrorItem = useCallback(() => {
+    setErrorItemDisplay(!errorItemDisplay)
+  }, [errorItemDisplay])
+  const displaySubErrorItem = useCallback(() => {
+    setSubErrorItemDisplay(!subErrorItemDisplay)
+  }, [subErrorItemDisplay])
+
 	const handleClick = useCallback(async () => {
 		setLoading(true)
         const params = { name: 'zyc' }
-        const transaction = Sentry.getCurrentHub()?.getScope()?.getTransaction()
+        const transaction = normal_transaction
+        console.log('zyc transaction', transaction)
         if (transaction) {
-            console.log('transaction', transaction)
-            if (transaction) {
-                const span = transaction.startChild({
-                    op: 'click',
-                    description: 'handle click event',
-                    data: { params },
-                })
-                const subSpan = span.startChild({
-                    op: 'subClick',
-                    description: 'handle sub click event',
-                    data: { params },
-                })
-                await mockRequest(params)
-                subSpan.finish()
-                span.finish()
-                setLoading(false)
-            }
+          const span = transaction.startSpan({
+            op: 'click',
+            description: 'handle click event',
+            data: { params },
+          })
+          // const subSpan = span.startChild({
+          //   op: 'subClick',
+          //   description: 'handle sub click event',
+          //   data: { params },
+          // })
+          await mockRequest(params)
+          // subSpan.finish()
+          // span.finish()
+          transaction.finishSpan({
+            spanId: span.spanId
+          })
+          setLoading(false)
         }
 	}, [])
 
     const handleSentToSentry = useCallback(() => {
-        const transaction = Sentry.getCurrentHub().getScope().getTransaction()
-        console.log('handleSentToSentry', transaction, transaction2)
+        const transaction = normal_transaction
+        console.log('handleSentToSentry', transaction)
         if (transaction) {
-            transaction.finish()
-        }
-        if (transaction2) {
-            transaction2.finish()
+            transaction.finishTransaction()
         }
     }, [])
 
     const throwError = useCallback(() => {
-        throw new Error('zyc error')
+        throw new Error('sentry test error')
     }, [])
 
     const initComponent = useCallback(() => {
-        const transaction = Sentry.startTransaction({ name: "SentryTest 测试" });
+        const transaction = normal_transaction.startTransaction()
         Sentry.getCurrentHub().configureScope(scope => scope.setSpan(transaction));
         const span = transaction.startChild({
             op: 'init',
@@ -113,17 +80,13 @@ const SentryTest: React.FunctionComponent<{}> = function (props) {
         return new Promise((resolve, reject) => {
             setTimeout(() => {
                 // do something
-                // span.setStatus(SpanStatus.Ok);
                 span.finish()
-                // transaction.finish()
-                Sentry.startTransaction({ name: "SentryTest 测试3" });
                 resolve(true)
             }, 2000)
         })
     }, [])
 
     const testCorsFetch = useCallback(() => {
-        console.log('zyc do fetch')
         fetch('https://cors-anywhere.herokuapp.com/')
           .then(data => {
             console.log('zyc success', data)
@@ -158,11 +121,10 @@ const SentryTest: React.FunctionComponent<{}> = function (props) {
         xhr.send();
     }, [])
 
-    const handleCrossOriginError = useCallback((error) => {
-        console.log('zyc error', error)
-    }, [])
-
     useEffect(() => {
+        const handleCrossOriginError = (error) => {
+          console.log('handleCrossOriginError', error)
+        }
         window.onunhandledrejection = function(e) {
             // 收集跨域 Promise 错误
             handleCrossOriginError(e.reason); 
@@ -176,20 +138,26 @@ const SentryTest: React.FunctionComponent<{}> = function (props) {
     }, [])
 
 	return (
-		<div style={{fontFamily: 'PingFang SC,"微软雅黑",Arial'}}>
-            <ErrorBoundary id={1}>
+		<div className={styles.container} style={{fontFamily: 'PingFang SC,"微软雅黑",Arial'}}>
+            <ErrorBoundaryTest id={1}>
                 <Button loading={loading} onClick={handleClick}>Sent Request</Button>
                 <Button onClick={handleSentToSentry}>Sent To Sentry</Button>
                 <Button onClick={throwError}>Throw Error</Button>
-                <Button onClick={displayItem}>Show Item</Button>
+                <Button onClick={displayErrorItem}>Display Error Item</Button>
+                <Button onClick={displaySubErrorItem}>Display Sub Error Item</Button>
                 <Button onClick={testCorsFetch}>Test Fetch CORS</Button>
                 <Button onClick={testCorsXHR}>Test XHR CORS</Button>
+                <IndexDBTest />
                 {
-                    showItem ? <ErrorBoundary id={2}>
-                        <Item />
-                    </ErrorBoundary> : null
+                    subErrorItemDisplay ? <ErrorBoundaryTest id={2}>
+                        <ErrorItem />
+                    </ErrorBoundaryTest> : null
                 }
-            </ErrorBoundary>
+                {/* <MemoryLeakComponent /> */}
+            </ErrorBoundaryTest>
+            {
+              errorItemDisplay ? <ErrorItem /> : null
+            }
 		</div>
 	)
 }

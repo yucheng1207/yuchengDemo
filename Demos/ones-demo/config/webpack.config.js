@@ -761,15 +761,15 @@ module.exports = function (webpackEnv) {
 				},
 			}),
 			isEnvProduction && new SentryWebpackPlugin({
-				org: "sentry",
-				project: "react-demo",
-				url: 'http://10.17.0.156:9000/',
-				include: "./build",
+				org: process.env.SENTRY_ORG,
+				project: process.env.SENTRY_PROJECT,
+				url: process.env.SENTRY_URL,
+				include: process.env.SENTRY_INCLUDE || "./build",
 				// Auth tokens can be obtained from https://sentry.io/settings/account/api/auth-tokens/
 				// and needs the `project:releases` and `org:read` scopes
-				authToken: "13f944702f9a4c729c0c849b5af063fe3b37b6ff3ee84eb5a0af3e50742f50da", //process.env.SENTRY_AUTH_TOKEN,
+				authToken: process.env.SENTRY_AUTH_TOKEN,
 				// Optionally uncomment the line below to override automatic release name detection
-				release: 'ones-demo@0.0.1', // process.env.RELEASE,
+				release: process.env.RELEASE,
 			}),
 		].filter(Boolean),
 		// Some libraries import Node modules but don't use them in the browser.

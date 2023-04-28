@@ -1,36 +1,36 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { Provider as ReduxProvider } from "react-redux";
+import { Route } from 'react-router';
 import './App.css';
 import store from './store/index';
-import * as Sentry from "@sentry/react";
-import { BrowserTracing } from "@sentry/tracing";
-import { HttpClient } from "@sentry/integrations";
 import {
 	HashRouter as Router,
 	Switch,
-	Route,
 	Link,
-	matchPath
   } from "react-router-dom";
 import { createBrowserHistory, createHashHistory } from 'history';
 import SentryTest from './components/SentryTest';
-const SentryRoute = Sentry.withSentryRouting(Route);
+import { initMonitor, ErrorBoundary } from './monitor';
 const history = createHashHistory()
-const routes = [{ path: '/dynamic_component' }, { path: '/sentry/test' }, { path: '/' }];
-console.log('log', process.env);
 
-Sentry.init({
-	dsn: "http://dcf8f6330dd5410d9885dcb1ee477b9c@10.17.0.156:9000/2", // javascript-react: https://sentry.io/organizations/qizhi-7z/projects/javascript-react/?project=4504445188833280
-	integrations: [new BrowserTracing({
-		// tracePropagationTargets: ["localhost", "my-site-url.com", /^\//],
-		routingInstrumentation: Sentry.reactRouterV5Instrumentation(history, routes, matchPath)
-	}), new HttpClient() as any],  // new ReportingObserver()],
-	// Set tracesSampleRate to 1.0 to capture 100%
-	// of transactions for performance monitoring.
-	// We recommend adjusting this value in production
-	tracesSampleRate: 1.0,
-	release: `ones-demo@0.0.1`
-});
+const defaultTracesSampleRate = 0.5;
+const defaultSampleRate = 1;
+const version = process.env.RELEASE;
+const monitorDsn = process.env.MONITOR_DSN;
+const tracesSampleRate = process.env.MONITOR_TRACES_SAMPLE_RATE;
+const sampleRate = process.env.MONITOR_SAMPLE_RATE;
+const enableMonitor = monitorDsn && (tracesSampleRate || sampleRate)
+console.log('process.env', process.env)
+
+if (enableMonitor) {
+	initMonitor({
+	  history,
+	  dsn: monitorDsn,
+	  version,
+	  tracesSampleRate: tracesSampleRate ? parseFloat(tracesSampleRate) : defaultTracesSampleRate,
+	  sampleRate: sampleRate ? parseFloat(sampleRate) : defaultSampleRate,
+	});
+}
 
 enum TestName {
 	OnesDesignTest
@@ -71,31 +71,31 @@ function App() {
 	const DynamicComponent = useTestComponent(currentTestName)
 	return (
 		<div className="App">
-			<Sentry.ErrorBoundary>
+			<ErrorBoundary fallback={<>出错啦</>}>
 				<ReduxProvider store={store}>
 					<Router history={history}>
 						<Link to="/">Home </Link>
 						<Link to="/sentry/test">Sentry_Test </Link>
 						<Link to="/dynamic_component">Dynamic </Link>
 						<Switch>
-							<SentryRoute path="/sentry/test">
+							<Route path="/sentry/test">
 								<SentryTest />
-							</SentryRoute>
-							<SentryRoute path="/dynamic_component">
+							</Route>
+							<Route path="/dynamic_component">
 								{
 									DynamicComponent ? <DynamicComponent /> : null
 								}
-							</SentryRoute>
-							<SentryRoute path="/">
+							</Route>
+							<Route path="/">
 								<div>home</div>
 								<img src="./logo192.png"></img>
-							</SentryRoute>
+							</Route>
 						</Switch>
 					</Router>
 				</ReduxProvider>
-			</Sentry.ErrorBoundary>
+			</ErrorBoundary>
 		</div>
 	);
 }
 
-export default Sentry.withProfiler(App, { name: "CustomAppName" });
+export default App;
