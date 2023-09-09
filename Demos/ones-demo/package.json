@@ -31,6 +31,8 @@
     "case-sensitive-paths-webpack-plugin": "2.3.0",
     "compression-webpack-plugin": "6.1.1",
     "css-loader": "4.3.0",
+    "dayjs": "1.11.7",
+    "dhtmlx-gantt": "8.0.1",
     "dotenv": "8.2.0",
     "dotenv-expand": "5.1.0",
     "enumify": "^2.0.0",

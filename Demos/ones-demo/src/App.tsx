@@ -11,6 +11,8 @@ import {
 import { createBrowserHistory, createHashHistory } from 'history';
 import SentryTest from './components/SentryTest';
 import { initMonitor, ErrorBoundary } from './monitor';
+import DayjsTest from './components/DayjsTest';
+import GanttTest from './components/GanttTest';
 const history = createHashHistory()
 
 const defaultTracesSampleRate = 0.5;
@@ -55,7 +57,7 @@ function useTestComponent(type: TestName) {
 	const element = elementRef.current
 	const [loading, setLoading] = useState(true)
 	useEffect(() => {
-		getElement()
+		getElement();
 	}, [])
 
 	const getElement = useCallback(async () => {
@@ -71,6 +73,8 @@ function App() {
 	const DynamicComponent = useTestComponent(currentTestName)
 	return (
 		<div className="App">
+			{/* <DayjsTest /> */}
+			{/* <GanttTest/> */}
 			<ErrorBoundary fallback={<>出错啦</>}>
 				<ReduxProvider store={store}>
 					<Router history={history}>
